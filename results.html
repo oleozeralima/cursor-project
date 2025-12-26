@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Veja seus resultados completos da análise de personalidade HYPE™ - Mandala BIG 5 e compatibilidade de equipe">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <title>HYPE™ - Seus Resultados</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container results-container">
+        <header>
+            <div class="logo">
+                <span class="logo-h">H</span>
+                <span class="logo-y">Y</span>
+                <span class="logo-p">P</span>
+                <span class="logo-e">E</span>
+                <span class="logo-tm">™</span>
+            </div>
+            <button class="close-btn" id="closeBtn">✕</button>
+        </header>
+
+        <main class="results-main" id="resultsContent">
+            <h1 class="results-title">Seu Perfil Profissional</h1>
+            
+            <section class="mandala-section">
+                <h2>Mandala de Personalidade BIG 5</h2>
+                <div class="mandala-container">
+                    <canvas id="mandalaCanvas"></canvas>
+                </div>
+                <div class="skills-legend" id="skillsLegend"></div>
+            </section>
+
+            <section class="skills-breakdown">
+                <h2>Análise Detalhada dos Traços BIG 5</h2>
+                <div class="skills-grid" id="skillsGrid"></div>
+            </section>
+
+            <section class="compatibility-section">
+                <h2>Compatibilidade com Equipe</h2>
+                <div class="compatibility-grid" id="compatibilityGrid"></div>
+            </section>
+
+            <section class="company-fit-section">
+                <h2>Onde Você se Encaixa na Empresa</h2>
+                <div class="fit-visualization" id="fitVisualization"></div>
+                <div class="fit-description" id="fitDescription"></div>
+            </section>
+
+            <div class="results-actions">
+                <button class="action-btn" id="retakeBtn">Refazer Questionário</button>
+                <button class="action-btn primary" id="exportBtn">Exportar Resultados</button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = localStorage.getItem('hypeCurrentUser');
+            if (!currentUser) {
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+    <!-- Supabase Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-quiz.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="questions.js"></script>
+    <script src="results.js"></script>
+    <script>
+        // Initialize Supabase when Supabase library is loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(initSupabase, 100); // Small delay to ensure library is loaded
+            });
+        } else {
+            setTimeout(initSupabase, 100);
+        }
+    </script>
+</body>
+</html>

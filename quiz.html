@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Complete o questionário HYPE™ - 30 perguntas sobre suas preferências profissionais">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <title>HYPE™ - Questionário de Personalidade</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="logo-h">H</span>
+                <span class="logo-y">Y</span>
+                <span class="logo-p">P</span>
+                <span class="logo-e">E</span>
+                <span class="logo-tm">™</span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <span class="progress-text" id="progressText">0%</span>
+            </div>
+            <button class="close-btn" id="closeBtn">✕</button>
+        </header>
+
+        <main>
+            <div class="questions-container" id="questionsContainer">
+                <!-- Questions will be dynamically inserted here -->
+            </div>
+
+            <div class="navigation">
+                <button class="nav-btn prev-btn" id="prevBtn" style="display: none;">← Anterior</button>
+                <button class="nav-btn next-btn" id="nextBtn">Próximo →</button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = localStorage.getItem('hypeCurrentUser');
+            if (!currentUser) {
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+    <!-- Supabase Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-quiz.js"></script>
+    <script src="questions.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Initialize Supabase when page loads
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                if (typeof initSupabase === 'function') {
+                    initSupabase();
+                }
+            }, 200);
+        });
+    </script>
+</body>
+</html>
