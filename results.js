@@ -120,7 +120,7 @@ function drawMandala() {
     const canvas = document.getElementById('mandalaCanvas');
     if (!canvas) return;
     
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     const container = canvas.parentElement;
     const containerWidth = container.clientWidth - 80;
     const size = Math.min(600, containerWidth);
@@ -546,7 +546,7 @@ function displayCompanyFit() {
     `;
 }
 
-// Generate clean PDF content
+// Generate clean HTML content for export
 function generatePDFContent() {
     // Verify data is available
     if (!userSkills || Object.keys(userSkills).length === 0) {
@@ -578,66 +578,60 @@ function generatePDFContent() {
     let traitsHtml = traits.map(([trait, score]) => {
         const color = big5Traits[trait].color;
         return `
-            <div style="margin-bottom: 15px; width: 100%;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 5px; width: 100%;">
-                    <span style="font-weight: bold; color: ${color}; font-size: 14px;">${trait}</span>
-                    <span style="font-weight: bold; color: #333333; font-size: 14px;">${score}%</span>
+            <div class="trait-item">
+                <div class="trait-header">
+                    <span class="trait-name" style="color: ${color};">${trait}</span>
+                    <span class="trait-value">${score}%</span>
                 </div>
-                <div style="background-color: #e0e0e0; height: 20px; border-radius: 10px; overflow: hidden; width: 100%;">
-                    <div style="background-color: ${color}; height: 100%; width: ${score}%;"></div>
+                <div class="trait-bar-container">
+                    <div class="trait-bar" style="background-color: ${color}; width: ${score}%;"></div>
                 </div>
             </div>
         `;
     }).join('');
     
     let compatibilityHtml = compatibilityData.map(member => `
-        <div style="border: 1px solid #dddddd; padding: 15px; margin-bottom: 10px; border-radius: 8px; background-color: #f9f9f9;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                <strong style="color: #333333; font-size: 16px;">${member.name}</strong>
-                <span style="font-weight: bold; font-size: 18px; color: ${member.compatibility >= 75 ? '#50c878' : member.compatibility >= 50 ? '#ff6b35' : '#e74c3c'};">
+        <div class="compatibility-item">
+            <div class="compatibility-header">
+                <strong class="compatibility-name">${member.name}</strong>
+                <span class="compatibility-score" style="color: ${member.compatibility >= 75 ? '#50c878' : member.compatibility >= 50 ? '#ff6b35' : '#e74c3c'};">
                     ${member.compatibility}%
                 </span>
             </div>
-            <div style="font-size: 12px; color: #666666;">${member.role}</div>
+            <div class="compatibility-role">${member.role}</div>
         </div>
     `).join('');
     
     return `
-        <div style="font-family: Arial, sans-serif; color: #333; padding: 20px; max-width: 210mm; background: white;">
-            <div style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #ff6b35; padding-bottom: 20px;">
-                <h1 style="color: #ff6b35; margin: 0; font-size: 32px;">HYPE™</h1>
-                <h2 style="color: #333; margin: 10px 0 0 0; font-size: 24px;">Resultados do Perfil Profissional</h2>
-                <p style="color: #666; margin: 10px 0 0 0; font-size: 14px;">Gerado em ${new Date().toLocaleDateString('pt-BR')}</p>
+        <div class="container">
+            <div class="header">
+                <h1>HYPE™</h1>
+                <h2>Resultados do Perfil Profissional</h2>
+                <p>Gerado em ${new Date().toLocaleDateString('pt-BR')}</p>
             </div>
             
-            <section style="margin-bottom: 40px; width: 100%;">
-                <h3 style="color: #ff6b35; font-size: 20px; margin-bottom: 20px; border-bottom: 2px solid #ff6b35; padding-bottom: 10px; font-weight: bold;">
-                    Análise Detalhada dos Traços BIG 5
-                </h3>
+            <section>
+                <h3>Análise Detalhada dos Traços BIG 5</h3>
                 ${traitsHtml}
             </section>
             
-            <section style="margin-bottom: 40px; width: 100%;">
-                <h3 style="color: #ff6b35; font-size: 20px; margin-bottom: 20px; border-bottom: 2px solid #ff6b35; padding-bottom: 10px; font-weight: bold;">
-                    Recomendação Principal: ${topRole.role}
-                </h3>
-                <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; border-left: 4px solid #50c878;">
-                    <div style="font-size: 24px; margin-bottom: 10px; color: #333333;">
-                        <span style="font-size: 28px;">${topRole.icon}</span> <strong style="color: #333333;">${topRole.role}</strong>
+            <section>
+                <h3>Recomendação Principal: ${topRole.role}</h3>
+                <div class="recommendation-box">
+                    <div class="recommendation-title">
+                        <span style="font-size: 28px;">${topRole.icon}</span> <strong>${topRole.role}</strong>
                     </div>
-                    <div style="font-size: 32px; color: #50c878; font-weight: bold; margin: 10px 0;">${topRole.fit}% de Compatibilidade</div>
-                    <p style="margin-top: 15px; line-height: 1.6; color: #333333; font-size: 14px;">${topRole.description}</p>
+                    <div class="recommendation-score">${topRole.fit}% de Compatibilidade</div>
+                    <p class="recommendation-desc">${topRole.description}</p>
                 </div>
             </section>
             
-            <section style="margin-bottom: 40px; width: 100%;">
-                <h3 style="color: #ff6b35; font-size: 20px; margin-bottom: 20px; border-bottom: 2px solid #ff6b35; padding-bottom: 10px; font-weight: bold;">
-                    Compatibilidade com Equipe
-                </h3>
+            <section>
+                <h3>Compatibilidade com Equipe</h3>
                 ${compatibilityHtml}
             </section>
             
-            <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #dddddd; text-align: center; color: #666666; font-size: 12px;">
+            <div class="footer">
                 <p style="margin: 5px 0;">HYPE™ - Avaliação de Personalidade BIG 5</p>
                 <p style="margin: 5px 0;">Este relatório foi gerado automaticamente com base nas suas respostas ao questionário.</p>
             </div>
@@ -659,108 +653,196 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('exportBtn')?.addEventListener('click', async () => {
         const exportBtn = document.getElementById('exportBtn');
         const originalText = exportBtn.textContent;
-        exportBtn.textContent = 'Gerando PDF...';
+        exportBtn.textContent = 'Gerando arquivo...';
         exportBtn.disabled = true;
         
         try {
-            // Check if html2pdf is loaded
-            if (typeof html2pdf === 'undefined') {
-                throw new Error('Biblioteca html2pdf não foi carregada. Por favor, recarregue a página.');
-            }
-            
             // Verify data is loaded
             if (!userSkills || Object.keys(userSkills).length === 0) {
                 throw new Error('Dados não carregados. Por favor, recarregue a página de resultados.');
             }
             
-            // Generate PDF content HTML
-            const pdfContent = generatePDFContent();
+            // Generate HTML content
+            const htmlContent = generatePDFContent();
             
-            if (!pdfContent || pdfContent.trim().length === 0) {
-                throw new Error('Conteúdo do PDF está vazio. Verifique se completou o questionário.');
+            if (!htmlContent || htmlContent.trim().length === 0) {
+                throw new Error('Conteúdo está vazio. Verifique se completou o questionário.');
             }
             
-            // Create a temporary container that will be rendered
-            const tempDiv = document.createElement('div');
-            tempDiv.id = 'pdf-export-container';
-            tempDiv.innerHTML = pdfContent;
+            // Create complete HTML document with styles
+            const completeHTML = `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados HYPE™ - ${new Date().toLocaleDateString('pt-BR')}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            color: #333;
+            background: white;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 210mm;
+            margin: 0 auto;
+            background: white;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #ff6b35;
+            padding-bottom: 20px;
+        }
+        .header h1 {
+            color: #ff6b35;
+            margin: 0;
+            font-size: 32px;
+        }
+        .header h2 {
+            color: #333;
+            margin: 10px 0 0 0;
+            font-size: 24px;
+        }
+        .header p {
+            color: #666;
+            margin: 10px 0 0 0;
+            font-size: 14px;
+        }
+        section {
+            margin-bottom: 40px;
+            width: 100%;
+        }
+        h3 {
+            color: #ff6b35;
+            font-size: 20px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ff6b35;
+            padding-bottom: 10px;
+            font-weight: bold;
+        }
+        .trait-item {
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        .trait-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            width: 100%;
+        }
+        .trait-name {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .trait-value {
+            font-weight: bold;
+            color: #333333;
+            font-size: 14px;
+        }
+        .trait-bar-container {
+            background-color: #e0e0e0;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 100%;
+        }
+        .trait-bar {
+            height: 100%;
+        }
+        .recommendation-box {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #50c878;
+        }
+        .recommendation-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #333333;
+        }
+        .recommendation-score {
+            font-size: 32px;
+            color: #50c878;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .recommendation-desc {
+            margin-top: 15px;
+            line-height: 1.6;
+            color: #333333;
+            font-size: 14px;
+        }
+        .compatibility-item {
+            border: 1px solid #dddddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .compatibility-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .compatibility-name {
+            color: #333333;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .compatibility-score {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .compatibility-role {
+            font-size: 12px;
+            color: #666666;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #dddddd;
+            text-align: center;
+            color: #666666;
+            font-size: 12px;
+        }
+        @media print {
+            body {
+                padding: 0;
+            }
+            .container {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    ${htmlContent}
+</body>
+</html>`;
             
-            // Style the container for proper rendering
-            Object.assign(tempDiv.style, {
-                position: 'absolute',
-                top: '0',
-                left: '0',
-                width: '794px', // A4 width in pixels at 96 DPI
-                minHeight: '1123px', // A4 height in pixels
-                padding: '40px',
-                margin: '0',
-                backgroundColor: '#ffffff',
-                color: '#333333',
-                fontFamily: 'Arial, sans-serif',
-                fontSize: '14px',
-                lineHeight: '1.6',
-                boxSizing: 'border-box'
-            });
+            // Create blob and download
+            const blob = new Blob([completeHTML], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `Resultados-HYPE-${new Date().toISOString().split('T')[0]}.html`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
             
-            // Append to body temporarily
-            document.body.appendChild(tempDiv);
-            
-            // Make it visible for rendering but off-screen
-            tempDiv.style.position = 'fixed';
-            tempDiv.style.top = '0';
-            tempDiv.style.left = '0';
-            tempDiv.style.zIndex = '999999';
-            
-            // Wait for DOM to update
-            await new Promise(resolve => {
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        // Force layout recalculation
-                        tempDiv.offsetHeight;
-                        resolve();
-                    });
-                });
-            });
-
-            // Wait for rendering
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            // Generate PDF with optimized settings
-            const opt = {
-                margin: [10, 10, 10, 10],
-                filename: `Resultados-HYPE-${new Date().toISOString().split('T')[0]}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { 
-                    scale: 2,
-                    useCORS: true,
-                    logging: false,
-                    backgroundColor: '#ffffff',
-                    letterRendering: true,
-                    allowTaint: false,
-                    removeContainer: true,
-                    width: tempDiv.scrollWidth,
-                    height: tempDiv.scrollHeight
-                },
-                jsPDF: { 
-                    unit: 'mm', 
-                    format: 'a4', 
-                    orientation: 'portrait',
-                    compress: true
-                },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-            };
-            
-            // Generate PDF
-            await html2pdf().set(opt).from(tempDiv).save();
-            
-            // Clean up
-            setTimeout(() => {
-                if (tempDiv.parentNode) {
-                    document.body.removeChild(tempDiv);
-                }
-            }, 1000);
         } catch (error) {
-            alert('Erro ao exportar PDF: ' + (error.message || error.toString()));
+            alert('Erro ao exportar resultados: ' + (error.message || error.toString()));
+            console.error('Erro ao exportar:', error);
         } finally {
             exportBtn.textContent = originalText;
             exportBtn.disabled = false;

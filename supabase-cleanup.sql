@@ -48,3 +48,4 @@ DROP TABLE IF EXISTS public.users CASCADE;
 -- para recriar tudo do zero.
 -- ========================================
 
+
