@@ -546,8 +546,8 @@ function displayCompanyFit() {
     `;
 }
 
-// Generate clean HTML content for export
-function generateHTMLContent() {
+// Generate clean HTML content for export with mandala
+async function generateHTMLContent() {
     // Verify data is available
     if (!userSkills || Object.keys(userSkills).length === 0) {
         return '<div style="padding: 20px;"><h1>Erro: Dados não disponíveis</h1><p>Por favor, complete o questionário primeiro.</p></div>';
@@ -574,6 +574,27 @@ function generateHTMLContent() {
         role: member.role,
         compatibility: calculateCompatibility(member)
     })).sort((a, b) => b.compatibility - a.compatibility);
+    
+    // Capture mandala canvas as image
+    let mandalaImage = '';
+    const canvas = document.getElementById('mandalaCanvas');
+    if (canvas) {
+        try {
+            mandalaImage = canvas.toDataURL('image/png');
+        } catch (e) {
+            console.warn('Não foi possível capturar a mandala:', e);
+        }
+    }
+    
+    // Create mandala HTML section
+    const mandalaHtml = mandalaImage ? `
+        <section>
+            <h3>Mandala de Personalidade BIG 5</h3>
+            <div style="text-align: center; margin: 20px 0;">
+                <img src="${mandalaImage}" alt="Mandala de Personalidade BIG 5" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" />
+            </div>
+        </section>
+    ` : '';
     
     let traitsHtml = traits.map(([trait, score]) => {
         const color = big5Traits[trait].color;
@@ -609,6 +630,8 @@ function generateHTMLContent() {
                 <h2>Resultados do Perfil Profissional</h2>
                 <p>Gerado em ${new Date().toLocaleDateString('pt-BR')}</p>
             </div>
+            
+            ${mandalaHtml}
             
             <section>
                 <h3>Análise Detalhada dos Traços BIG 5</h3>
@@ -662,8 +685,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 throw new Error('Dados não carregados. Por favor, recarregue a página de resultados.');
             }
             
-            // Generate HTML content
-            const htmlContent = generateHTMLContent();
+            // Generate HTML content (async function)
+            const htmlContent = await generateHTMLContent();
             
             if (!htmlContent || htmlContent.trim().length === 0) {
                 throw new Error('Conteúdo está vazio. Verifique se completou o questionário.');
@@ -814,12 +837,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             color: #666666;
             font-size: 12px;
         }
+        .mandala-image {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .mandala-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
         @media print {
             body {
                 padding: 0;
             }
             .container {
                 max-width: 100%;
+            }
+            .mandala-image img {
+                max-width: 80%;
             }
         }
     </style>
@@ -829,16 +865,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 </body>
 </html>`;
             
-            // Create blob and download
+            // Create blob and download as HTML file
             const blob = new Blob([completeHTML], { type: 'text/html;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
             link.download = `Resultados-HYPE-${new Date().toISOString().split('T')[0]}.html`;
+            link.type = 'text/html';
+            link.style.display = 'none';
             document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
+            
+            // Force download
+            const clickEvent = new MouseEvent('click', {
+                view: window,
+                bubbles: true,
+                cancelable: true
+            });
+            link.dispatchEvent(clickEvent);
+            
+            // Clean up
+            setTimeout(() => {
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }, 100);
+            
+            console.log('✅ Arquivo HTML gerado e baixado com sucesso!');
             
         } catch (error) {
             alert('Erro ao exportar resultados: ' + (error.message || error.toString()));

@@ -42,7 +42,7 @@ Este guia te ensina como configurar tudo no GitHub, Supabase e Vercel do zero!
 ├── index.html              # Página inicial
 ├── login.html              # Login/Registro
 ├── quiz.html               # Questionário (30 perguntas)
-├── results.html            # Resultados e PDF
+├── results.html            # Resultados e exportação HTML
 ├── styles.css              # Estilos
 ├── script.js               # Lógica do quiz
 ├── questions.js            # Banco de perguntas
@@ -57,7 +57,7 @@ Este guia te ensina como configurar tudo no GitHub, Supabase e Vercel do zero!
 
 - HTML5, CSS3, JavaScript (Vanilla)
 - Supabase (backend)
-- html2pdf.js (exportação PDF)
+- Exportação HTML (com mandala incluída)
 
 ## 📊 Modelo BIG 5
 

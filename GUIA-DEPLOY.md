@@ -179,7 +179,7 @@ git push -u origin main
 ### Teste 5: Resultados Funcionam?
 - Complete o quiz todo
 - Veja os resultados
-- Tente exportar o PDF
+- Tente exportar os resultados (arquivo HTML)
 
 ---
 
@@ -230,13 +230,13 @@ git push -u origin main
 4. Verifique as credenciais em `supabase-config.js`
 5. Verifique se o projeto do Supabase não está pausado
 
-### ❌ "Erro ao gerar PDF"
+### ❌ "Erro ao exportar resultados"
 
 **Solução:**
-1. Verifique se a biblioteca html2pdf está carregando
-2. Abra o Console (F12) e veja se há erros
+1. Abra o Console (F12) e veja se há erros
+2. Verifique se completou o questionário antes de exportar
 3. Tente em outro navegador
-4. Verifique se o arquivo `results.html` tem o script do html2pdf
+4. Certifique-se de que a mandala foi renderizada na tela antes de exportar
 
 ### ❌ "Vercel não encontra o repositório"
 
@@ -274,7 +274,7 @@ Antes de considerar tudo pronto:
 - [ ] Dados aparecem no Supabase (Table Editor → users)
 - [ ] Quiz funciona e salva respostas
 - [ ] Resultados aparecem corretamente
-- [ ] PDF pode ser exportado
+- [ ] Arquivo HTML pode ser exportado (com mandala incluída)
 
 ---
 
