@@ -714,15 +714,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         body {
             font-family: 'Arial', 'Helvetica', sans-serif;
-            color: #333;
-            background: white;
+            color: #ffffff;
+            background: #000000;
             padding: 20px;
             line-height: 1.6;
         }
         .container {
             max-width: 210mm;
             margin: 0 auto;
-            background: white;
+            background: #000000;
         }
         .header {
             text-align: center;
@@ -736,12 +736,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             font-size: 32px;
         }
         .header h2 {
-            color: #333;
+            color: #ffffff;
             margin: 10px 0 0 0;
             font-size: 24px;
         }
         .header p {
-            color: #666;
+            color: #cccccc;
             margin: 10px 0 0 0;
             font-size: 14px;
         }
@@ -773,7 +773,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         .trait-value {
             font-weight: bold;
-            color: #333333;
+            color: #ffffff;
             font-size: 14px;
         }
         .trait-bar-container {
@@ -787,7 +787,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             height: 100%;
         }
         .recommendation-box {
-            background-color: #f5f5f5;
+            background-color: #1a1a1a;
             padding: 20px;
             border-radius: 8px;
             border-left: 4px solid #50c878;
@@ -795,7 +795,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         .recommendation-title {
             font-size: 24px;
             margin-bottom: 10px;
-            color: #333333;
+            color: #ffffff;
         }
         .recommendation-score {
             font-size: 32px;
@@ -806,15 +806,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         .recommendation-desc {
             margin-top: 15px;
             line-height: 1.6;
-            color: #333333;
+            color: #ffffff;
             font-size: 14px;
         }
         .compatibility-item {
-            border: 1px solid #dddddd;
+            border: 1px solid #333333;
             padding: 15px;
             margin-bottom: 10px;
             border-radius: 8px;
-            background-color: #f9f9f9;
+            background-color: #1a1a1a;
         }
         .compatibility-header {
             display: flex;
@@ -823,7 +823,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             margin-bottom: 5px;
         }
         .compatibility-name {
-            color: #333333;
+            color: #ffffff;
             font-size: 16px;
             font-weight: bold;
         }
@@ -833,14 +833,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         .compatibility-role {
             font-size: 12px;
-            color: #666666;
+            color: #cccccc;
         }
         .footer {
             margin-top: 40px;
             padding-top: 20px;
-            border-top: 2px solid #dddddd;
+            border-top: 2px solid #333333;
             text-align: center;
-            color: #666666;
+            color: #cccccc;
             font-size: 12px;
         }
         .mandala-image {
@@ -856,9 +856,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         @media print {
             body {
                 padding: 0;
+                background: #000000;
             }
             .container {
                 max-width: 100%;
+                background: #000000;
             }
             .mandala-image img {
                 max-width: 80%;
