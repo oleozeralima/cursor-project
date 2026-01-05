@@ -547,7 +547,7 @@ function displayCompanyFit() {
 }
 
 // Generate clean HTML content for export
-function generatePDFContent() {
+function generateHTMLContent() {
     // Verify data is available
     if (!userSkills || Object.keys(userSkills).length === 0) {
         return '<div style="padding: 20px;"><h1>Erro: Dados não disponíveis</h1><p>Por favor, complete o questionário primeiro.</p></div>';
@@ -663,7 +663,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             
             // Generate HTML content
-            const htmlContent = generatePDFContent();
+            const htmlContent = generateHTMLContent();
             
             if (!htmlContent || htmlContent.trim().length === 0) {
                 throw new Error('Conteúdo está vazio. Verifique se completou o questionário.');
