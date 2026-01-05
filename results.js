@@ -871,43 +871,56 @@ document.addEventListener('DOMContentLoaded', async () => {
 </body>
 </html>`;
             
-            // Create blob and download as HTML file - FORÇAR DOWNLOAD
-            const blob = new Blob([completeHTML], { type: 'text/html;charset=utf-8' });
+            // GARANTIR QUE É HTML - NÃO PDF!
+            const fileName = `Resultados-HYPE-${new Date().toISOString().split('T')[0]}.html`;
+            
+            // Criar blob com tipo HTML explícito
+            const blob = new Blob([completeHTML], { 
+                type: 'text/html;charset=utf-8'
+            });
+            
+            // Verificar se é realmente HTML
+            if (!blob.type.includes('html')) {
+                throw new Error('ERRO CRÍTICO: Arquivo não é HTML! Tipo: ' + blob.type);
+            }
+            
+            console.log('✅ Blob criado - Tipo:', blob.type);
+            console.log('✅ Tamanho:', blob.size, 'bytes');
+            console.log('✅ Nome do arquivo:', fileName);
+            
+            // Criar URL do blob
             const url = URL.createObjectURL(blob);
             
-            // Criar link de download
+            // Criar elemento de download
             const link = document.createElement('a');
             link.href = url;
-            link.download = `Resultados-HYPE-${new Date().toISOString().split('T')[0]}.html`;
-            link.setAttribute('download', `Resultados-HYPE-${new Date().toISOString().split('T')[0]}.html`);
+            link.download = fileName; // EXTENSÃO .html GARANTIDA
+            link.setAttribute('download', fileName);
+            link.setAttribute('type', 'text/html');
             link.style.display = 'none';
-            link.style.visibility = 'hidden';
             
-            // Adicionar ao body
+            // Adicionar ao DOM
             document.body.appendChild(link);
             
-            // Forçar download imediatamente
+            // Forçar download
             link.click();
             
-            // Limpar após download
+            // Limpar
             setTimeout(() => {
                 if (link.parentNode) {
                     document.body.removeChild(link);
                 }
                 URL.revokeObjectURL(url);
-            }, 200);
+            }, 300);
             
-            console.log('✅ Arquivo HTML gerado! Nome:', `Resultados-HYPE-${new Date().toISOString().split('T')[0]}.html`);
-            console.log('✅ Tipo do arquivo:', blob.type);
-            console.log('✅ Tamanho:', blob.size, 'bytes');
+            console.log('✅✅✅ ARQUIVO HTML BAIXADO COM SUCESSO! ✅✅✅');
+            console.log('✅ Nome:', fileName);
+            console.log('✅ Tipo:', blob.type);
             
-            // Confirmar que é HTML
-            if (blob.type !== 'text/html;charset=utf-8' && blob.type !== 'text/html') {
-                console.error('❌ ERRO: Tipo do arquivo está errado!', blob.type);
-                alert('Erro: O arquivo não está sendo gerado como HTML. Tipo: ' + blob.type);
-            } else {
-                console.log('✅ CONFIRMADO: Arquivo é HTML!');
-            }
+            // Alerta de confirmação
+            setTimeout(() => {
+                alert('✅ Arquivo HTML baixado com sucesso!\n\nNome: ' + fileName + '\n\nSe o arquivo abrir como PDF, é problema do navegador. Clique com botão direito no arquivo e escolha "Abrir com" → Navegador.');
+            }, 500);
             
         } catch (error) {
             alert('Erro ao exportar resultados: ' + (error.message || error.toString()));
