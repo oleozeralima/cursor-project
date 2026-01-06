@@ -723,11 +723,12 @@ section h2 {
     border-radius: 12px;
     background: var(--bg-card);
     color: var(--text-primary);
-    font-size: 18px;
+    font-size: 32px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: center;
+    line-height: 1;
 }
 
 .mobile-main-btn:hover {

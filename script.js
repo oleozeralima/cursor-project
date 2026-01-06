@@ -1,5 +1,5 @@
 // Quiz configuration
-let QUESTIONS_PER_PAGE = 1;
+let QUESTIONS_PER_PAGE = 3;
 let TOTAL_QUESTIONS = 0;
 let currentPage = 0;
 let answers = [];
@@ -60,10 +60,10 @@ function createQuestionCard(question, index) {
     card.dataset.questionIndex = index;
         
     card.innerHTML = `
-            <div class="question-header">
+        <div class="question-header">
             <h2 class="question-number">${question.id}</h2>
             <div class="question-trait">
-                ${question.question}
+                <strong>${question.trait}</strong> - ${question.question}
             </div>
         </div>
             <div class="question-content">
@@ -92,10 +92,10 @@ function createQuestionCard(question, index) {
                 <div class="mobile-buttons-container" id="mobile-buttons-${index}">
                     <div class="mobile-main-buttons">
                         <button class="mobile-main-btn mobile-btn-discordo" data-question="${index}" data-type="discordo">
-                            Discordo
+                            ↓
                         </button>
                         <button class="mobile-main-btn mobile-btn-concordo" data-question="${index}" data-type="concordo">
-                            Concordo
+                            ↑
                         </button>
                     </div>
                     <div class="mobile-sub-options mobile-sub-discordo" id="sub-discordo-${index}" style="display: none;">
@@ -276,7 +276,7 @@ function setupMobileButtons(index) {
     const container = document.getElementById(`mobile-buttons-${index}`);
     if (!container) return;
     
-    // Main buttons (Discordo/Concordo)
+    // Main buttons (↓/↑)
     const discordoBtn = container.querySelector('.mobile-btn-discordo');
     const concordoBtn = container.querySelector('.mobile-btn-concordo');
     const subDiscordo = document.getElementById(`sub-discordo-${index}`);
@@ -389,26 +389,6 @@ function setAnswerValue(index, value) {
     
     updateNextButtonState();
     saveAnswers();
-    
-    // Auto-advance to next question when answered
-    if (value !== null && value !== 0) {
-        autoAdvanceToNext(index);
-    }
-}
-
-function autoAdvanceToNext(currentIndex) {
-    // Wait a bit for visual feedback, then advance
-    setTimeout(() => {
-        // Check if there's a next question
-        if (currentIndex < TOTAL_QUESTIONS - 1) {
-            const nextPage = currentIndex + 1; // Since QUESTIONS_PER_PAGE = 1, page = question index
-            showQuestionPage(nextPage);
-        } else {
-            // Last question - update navigation to show "Ver Resultados" button
-            updateNavigationButtons();
-            updateNextButtonState();
-        }
-    }, 500);
 }
 
 function showQuestionPage(pageIndex) {
@@ -452,12 +432,9 @@ function updateNavigationButtons() {
     
     const totalPages = Math.ceil(TOTAL_QUESTIONS / QUESTIONS_PER_PAGE);
     if (currentPage === totalPages - 1) {
-        // Last question - show "Ver Resultados" button
         nextBtn.textContent = 'Ver Resultados →';
-        nextBtn.style.display = 'block';
     } else {
-        // Hide "Próximo" button until last question (auto-advance handles navigation)
-        nextBtn.style.display = 'none';
+        nextBtn.textContent = 'Próximo →';
     }
 }
 
