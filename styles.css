@@ -241,6 +241,15 @@ header {
     text-align: center;
     line-height: 1;
     user-select: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.slider-label.clickable-label:hover {
+    background: rgba(255, 107, 53, 0.2);
+    transform: translateX(-50%) scale(1.1);
 }
 
 .slider-label[data-value="-3"] { left: 8.33%; }
@@ -273,14 +282,14 @@ header {
     position: absolute;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 5px;
-    height: 18px;
+    width: 6px;
+    height: 20px;
     background: var(--text-primary);
-    border-radius: 2.5px;
+    border-radius: 3px;
     pointer-events: auto;
     cursor: pointer;
     transition: all 0.2s ease;
-    opacity: 0.5;
+    opacity: 0.6;
 }
 
 .slider-notch[data-value="-3"] { left: 8.33%; }
@@ -320,14 +329,14 @@ header {
     position: absolute;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     background: var(--accent-orange);
     border-radius: 50%;
     cursor: grab;
     box-shadow: 0 2px 8px rgba(255, 107, 53, 0.6);
     transition: left 0.15s ease-out;
-    border: 2px solid var(--bg-secondary);
+    border: 3px solid var(--bg-secondary);
     z-index: 10;
 }
 
@@ -748,32 +757,60 @@ section h2 {
     }
 
     .question-content {
-        flex-direction: column;
-        gap: 12px;
+        flex-direction: row;
+        gap: 10px;
+        align-items: stretch;
     }
     
     .statement-wrapper {
-        min-width: 100%;
+        flex: 1;
+        min-width: 0;
         gap: 6px;
     }
 
     .statement {
-        text-align: center !important;
+        font-size: 13px;
+        line-height: 1.4;
     }
     
     .statement-wrapper.left {
-        align-items: center;
-        text-align: center;
+        align-items: flex-end;
+        text-align: right;
     }
     
     .statement-wrapper.right {
-        align-items: center;
-        text-align: center;
+        align-items: flex-start;
+        text-align: left;
     }
 
     .slider-container {
-        min-width: 100%;
-        padding: 15px 0 20px 0;
+        flex: 1;
+        min-width: 0;
+        padding: 12px 0 18px 0;
+        order: 2;
+    }
+    
+    .statement-wrapper.left {
+        order: 1;
+    }
+    
+    .statement-wrapper.right {
+        order: 3;
+    }
+    
+    .slider-thumb {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .slider-notch {
+        width: 8px;
+        height: 24px;
+    }
+    
+    .slider-label {
+        font-size: 16px;
+        padding: 6px 10px;
     }
 
     .skills-grid,

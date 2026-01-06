@@ -60,7 +60,7 @@ function createQuestionCard(question, index) {
             <div class="slider-container">
                 <div class="slider-labels" id="labels-${index}">
                     ${[-3, -2, -1, 0, 1, 2, 3].map(val =>
-                        `<span class="slider-label" data-value="${val}">${val}</span>`
+                        `<span class="slider-label clickable-label" data-value="${val}">${val}</span>`
                     ).join('')}
                 </div>
                 <div class="slider-track" id="track-${index}">
@@ -224,6 +224,17 @@ function setupSlider(index) {
             notch.style.opacity = '0.3';
         } else {
             notch.addEventListener('click', (e) => {
+                e.stopPropagation();
+                setValue(value);
+            });
+        }
+    });
+
+    // Tornar os números clicáveis também
+    labels.forEach(label => {
+        const value = parseInt(label.dataset.value);
+        if (value !== 0) {
+            label.addEventListener('click', (e) => {
                 e.stopPropagation();
                 setValue(value);
             });
