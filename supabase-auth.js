@@ -303,11 +303,22 @@ function toggleMode() {
 }
 
 async function handleSubmit(e) {
-    e.preventDefault();
-    e.stopPropagation();
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
     
-    const username = document.getElementById('username').value.trim();
-    const phone = document.getElementById('phone').value;
+    const usernameInput = document.getElementById('username');
+    const phoneInput = document.getElementById('phone');
+    
+    if (!usernameInput || !phoneInput) {
+        console.error('Form inputs not found');
+        alert('Erro: Campos do formulário não encontrados. Por favor, recarregue a página.');
+        return;
+    }
+    
+    const username = usernameInput.value.trim();
+    const phone = phoneInput.value;
     
     hideError('usernameError');
     hideError('phoneError');
@@ -458,12 +469,31 @@ function initAuthForm() {
             usernameInput.classList.remove('error');
         });
         
+        // Add event listeners
         form.addEventListener('submit', handleSubmit);
+        
+        // Also add click listener to submit button as backup
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', (e) => {
+                // Don't prevent default here, let form submit handle it
+                // But ensure form submission works
+                if (form.checkValidity()) {
+                    // Form is valid, let submit handler take over
+                } else {
+                    // Form is invalid, trigger validation
+                    form.reportValidity();
+                }
+            });
+        }
+        
         toggleModeBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toggleMode();
+            e.preventDefault();
+            e.stopPropagation();
+            toggleMode();
         });
         
+        console.log('Auth form initialized successfully');
         return true;
     } catch (error) {
         console.error('Error initializing auth form:', error);
@@ -489,20 +519,99 @@ function initializeFormMode() {
 }
 
 // Initialize when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        initializeFormMode(); // Configurar modo de registro
-        setTimeout(() => {
-            if (!initAuthForm()) {
-                setTimeout(initAuthForm, 100);
-            }
-        }, 100);
-    });
-} else {
+function initializeAuth() {
     initializeFormMode(); // Configurar modo de registro
-    setTimeout(() => {
-        if (!initAuthForm()) {
-            setTimeout(initAuthForm, 100);
+    
+    // Try multiple times to ensure elements are ready
+    let attempts = 0;
+    const maxAttempts = 15;
+    
+    const tryInit = () => {
+        attempts++;
+        const form = document.getElementById('authForm');
+        const toggleBtn = document.getElementById('toggleModeBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        if (form && toggleBtn && submitBtn) {
+            // Remove any existing listeners by cloning
+            const newForm = form.cloneNode(true);
+            form.parentNode.replaceChild(newForm, form);
+            
+            // Re-get elements
+            const finalForm = document.getElementById('authForm');
+            const finalToggleBtn = document.getElementById('toggleModeBtn');
+            const finalSubmitBtn = document.getElementById('submitBtn');
+            const finalPhoneInput = document.getElementById('phone');
+            const finalUsernameInput = document.getElementById('username');
+            
+            if (finalForm && finalToggleBtn && finalSubmitBtn) {
+                // Add all event listeners
+                finalForm.addEventListener('submit', handleSubmit);
+                finalSubmitBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    handleSubmit(e);
+                });
+                finalToggleBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleMode();
+                });
+                
+                if (finalPhoneInput) {
+                    finalPhoneInput.addEventListener('input', () => {
+                        formatPhoneInput(finalPhoneInput);
+                        hideError('phoneError');
+                    });
+                }
+                
+                if (finalUsernameInput) {
+                    finalUsernameInput.addEventListener('blur', async () => {
+                        if (!isLoginMode && finalUsernameInput.value.trim()) {
+                            const validation = await validateUsername(finalUsernameInput.value.trim(), false);
+                            if (validation.valid) {
+                                hideError('usernameError');
+                                showSuccess('usernameSuccess', '✓ Nome de usuário disponível');
+                            } else {
+                                hideSuccess('usernameSuccess');
+                                showError('usernameError', validation.error);
+                            }
+                        }
+                    });
+                    
+                    finalUsernameInput.addEventListener('input', () => {
+                        hideError('usernameError');
+                        hideSuccess('usernameSuccess');
+                        finalUsernameInput.classList.remove('error');
+                    });
+                }
+                
+                console.log('Auth form initialized successfully');
+                return true;
+            }
         }
-    }, 100);
+        
+        if (attempts < maxAttempts) {
+            setTimeout(tryInit, 200);
+        } else {
+            console.error('Failed to initialize auth form after', maxAttempts, 'attempts');
+            alert('Erro ao inicializar formulário. Por favor, recarregue a página.');
+        }
+        
+        return false;
+    };
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(tryInit, 100);
+        });
+    } else {
+        setTimeout(tryInit, 100);
+    }
+}
+
+// Start initialization when script loads
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeAuth);
+} else {
+    initializeAuth();
 }

@@ -176,12 +176,30 @@
     <script src="supabase-config.js"></script>
     <script src="supabase-auth.js"></script>
     <script>
+        // Ensure everything is loaded
         window.addEventListener('load', function() {
             setTimeout(function() {
                 if (typeof initSupabase === 'function') {
                     initSupabase();
                 }
+                // Force re-initialization of auth form
+                if (typeof initializeAuth === 'function') {
+                    initializeAuth();
+                } else if (typeof initAuthForm === 'function') {
+                    setTimeout(function() {
+                        initAuthForm();
+                    }, 300);
+                }
             }, 200);
+        });
+        
+        // Also try on DOMContentLoaded as backup
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                if (typeof initSupabase === 'function') {
+                    initSupabase();
+                }
+            }, 100);
         });
     </script>
 </body>

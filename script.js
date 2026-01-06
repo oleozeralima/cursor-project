@@ -211,9 +211,46 @@ function valueToPosition(value) {
 
     // Set slider value (0 is not allowed)
     function setValue(value) {
-        setAnswerValue(index, value);
-        if (value !== null && value !== 0) {
+        // Reject 0 as a valid answer
+        if (value === 0) {
+            answers[index] = null;
+            thumb.style.left = '50%';
+            fill.style.left = '50%';
+            fill.style.width = '0%';
+        } else {
+            answers[index] = value;
             updateSlider(value);
+        }
+        updateNextButtonState();
+        saveAnswers();
+        
+        // Sync with mobile buttons if they exist
+        const container = document.getElementById(`mobile-buttons-${index}`);
+        if (container) {
+            const radioButtons = container.querySelectorAll('.mobile-radio');
+            const discordoBtn = container.querySelector('.mobile-btn-discordo');
+            const concordoBtn = container.querySelector('.mobile-btn-concordo');
+            const subDiscordo = document.getElementById(`sub-discordo-${index}`);
+            const subConcordo = document.getElementById(`sub-concordo-${index}`);
+            
+            radioButtons.forEach(radio => {
+                radio.checked = parseInt(radio.value) === value;
+            });
+            
+            // Show appropriate sub-options and update button states
+            if (value !== null && value !== 0) {
+                if (value < 0) {
+                    if (subDiscordo) subDiscordo.style.display = 'flex';
+                    if (subConcordo) subConcordo.style.display = 'none';
+                    if (discordoBtn) discordoBtn.classList.add('active');
+                    if (concordoBtn) concordoBtn.classList.remove('active');
+                } else {
+                    if (subDiscordo) subDiscordo.style.display = 'none';
+                    if (subConcordo) subConcordo.style.display = 'flex';
+                    if (discordoBtn) discordoBtn.classList.remove('active');
+                    if (concordoBtn) concordoBtn.classList.add('active');
+                }
+            }
         }
         }
         
