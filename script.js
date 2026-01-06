@@ -1,5 +1,5 @@
 // Quiz configuration
-let QUESTIONS_PER_PAGE = 3;
+let QUESTIONS_PER_PAGE = 1;
 let TOTAL_QUESTIONS = 0;
 let currentPage = 0;
 let answers = [];
@@ -60,10 +60,10 @@ function createQuestionCard(question, index) {
     card.dataset.questionIndex = index;
         
     card.innerHTML = `
-        <div class="question-header">
+            <div class="question-header">
             <h2 class="question-number">${question.id}</h2>
             <div class="question-trait">
-                <strong>${question.trait}</strong> - ${question.question}
+                ${question.question}
             </div>
         </div>
             <div class="question-content">
@@ -252,6 +252,11 @@ function valueToPosition(value) {
                 }
             }
         }
+        
+        // Auto-advance to next question when answered
+        if (value !== null && value !== 0) {
+            autoAdvanceToNext(index);
+        }
         }
         
     // Mouse events - only allow dragging the thumb, not clicking the track
@@ -426,6 +431,26 @@ function setAnswerValue(index, value) {
     
     updateNextButtonState();
     saveAnswers();
+    
+    // Auto-advance to next question when answered
+    if (value !== null && value !== 0) {
+        autoAdvanceToNext(index);
+    }
+}
+
+function autoAdvanceToNext(currentIndex) {
+    // Wait a bit for visual feedback, then advance
+    setTimeout(() => {
+        // Check if there's a next question
+        if (currentIndex < TOTAL_QUESTIONS - 1) {
+            const nextPage = currentIndex + 1; // Since QUESTIONS_PER_PAGE = 1, page = question index
+            showQuestionPage(nextPage);
+        } else {
+            // Last question - update navigation to show "Ver Resultados" button
+            updateNavigationButtons();
+            updateNextButtonState();
+        }
+    }, 500);
 }
 
 function showQuestionPage(pageIndex) {
@@ -469,9 +494,12 @@ function updateNavigationButtons() {
     
     const totalPages = Math.ceil(TOTAL_QUESTIONS / QUESTIONS_PER_PAGE);
     if (currentPage === totalPages - 1) {
+        // Last question - show "Ver Resultados" button
         nextBtn.textContent = 'Ver Resultados →';
+        nextBtn.style.display = 'block';
     } else {
-        nextBtn.textContent = 'Próximo →';
+        // Hide "Próximo" button until last question (auto-advance handles navigation)
+        nextBtn.style.display = 'none';
     }
 }
 
