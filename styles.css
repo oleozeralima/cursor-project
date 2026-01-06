@@ -711,6 +711,7 @@ section h2 {
 
 .mobile-main-buttons {
     display: flex;
+    flex-direction: column;
     gap: 15px;
     width: 100%;
 }

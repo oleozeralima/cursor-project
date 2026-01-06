@@ -404,7 +404,8 @@ function autoAdvanceToNext(currentIndex) {
             const nextPage = currentIndex + 1; // Since QUESTIONS_PER_PAGE = 1, page = question index
             showQuestionPage(nextPage);
         } else {
-            // Last question - check if all are answered and enable results button
+            // Last question - update navigation to show "Ver Resultados" button
+            updateNavigationButtons();
             updateNextButtonState();
         }
     }, 500);
@@ -451,9 +452,12 @@ function updateNavigationButtons() {
     
     const totalPages = Math.ceil(TOTAL_QUESTIONS / QUESTIONS_PER_PAGE);
     if (currentPage === totalPages - 1) {
+        // Last question - show "Ver Resultados" button
         nextBtn.textContent = 'Ver Resultados →';
+        nextBtn.style.display = 'block';
     } else {
-        nextBtn.textContent = 'Próximo →';
+        // Hide "Próximo" button until last question (auto-advance handles navigation)
+        nextBtn.style.display = 'none';
     }
 }
 
