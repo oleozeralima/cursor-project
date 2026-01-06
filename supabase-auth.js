@@ -269,6 +269,7 @@ async function validateUsername(username, isLogin = false) {
 
 function toggleMode() {
     isLoginMode = !isLoginMode;
+    console.log('Toggled to mode:', isLoginMode ? 'LOGIN' : 'REGISTER');
     
     const pageTitle = document.getElementById('pageTitle');
     const pageSubtitle = document.getElementById('pageSubtitle');
@@ -277,6 +278,7 @@ function toggleMode() {
     const toggleModeBtn = document.getElementById('toggleModeBtn');
     const usernameInput = document.getElementById('username');
     const phoneInput = document.getElementById('phone');
+    const usernameSuccess = document.getElementById('usernameSuccess');
     
     hideError('usernameError');
     hideError('phoneError');
@@ -293,6 +295,8 @@ function toggleMode() {
         if (submitBtn) submitBtn.textContent = 'Entrar';
         if (toggleText) toggleText.textContent = 'Não tem uma conta?';
         if (toggleModeBtn) toggleModeBtn.textContent = 'Criar nova conta';
+        // Hide username success message in login mode
+        if (usernameSuccess) usernameSuccess.style.display = 'none';
     } else {
         if (pageTitle) pageTitle.textContent = 'Registro';
         if (pageSubtitle) pageSubtitle.textContent = 'Crie sua conta para começar';
@@ -308,6 +312,8 @@ async function handleSubmit(e) {
         e.stopPropagation();
     }
     
+    console.log('Form submitted. Mode:', isLoginMode ? 'LOGIN' : 'REGISTER');
+    
     const usernameInput = document.getElementById('username');
     const phoneInput = document.getElementById('phone');
     
@@ -320,26 +326,34 @@ async function handleSubmit(e) {
     const username = usernameInput.value.trim();
     const phone = phoneInput.value;
     
+    console.log('Username:', username, 'Phone:', phone);
+    
     hideError('usernameError');
     hideError('phoneError');
     hideSuccess('usernameSuccess');
     
     const usernameValidation = await validateUsername(username, isLoginMode);
     if (!usernameValidation.valid) {
+        console.log('Username validation failed:', usernameValidation.error);
         showError('usernameError', usernameValidation.error);
         return;
     }
     
     const phoneValidation = validateBrazilianPhone(phone);
     if (!phoneValidation.valid) {
+        console.log('Phone validation failed:', phoneValidation.error);
         showError('phoneError', phoneValidation.error);
         return;
     }
     
+    console.log('Validations passed, proceeding with', isLoginMode ? 'LOGIN' : 'REGISTER');
+    
     if (isLoginMode) {
         // LOGIN MODE
         let user = null;
+        let foundInSupabase = false;
         
+        // Try Supabase first
         if (checkSupabaseAvailable()) {
             try {
                 const client = getSupabaseClient();
@@ -347,22 +361,22 @@ async function handleSubmit(e) {
                     .from('users')
                     .select('*')
                     .ilike('username', username)
-                    .eq('phone', phoneValidation.digits)
-                    .single();
+                    .eq('phone', phoneValidation.digits);
                 
-                if (error || !data) {
-                    showError('phoneError', 'Telefone não confere com este usuário');
-                    return;
+                if (!error && data && data.length > 0) {
+                    user = data[0];
+                    foundInSupabase = true;
+                } else if (error && error.code !== 'PGRST116') {
+                    // PGRST116 means no rows found, which is fine
+                    console.log('Supabase query error:', error);
                 }
-                user = data;
             } catch (error) {
-                const users = loadUsersFromLocalStorage();
-                user = users.find(u => 
-                    u.username.toLowerCase() === username.toLowerCase() && 
-                    u.phone === phoneValidation.digits
-                );
+                console.log('Supabase error, trying localStorage:', error);
             }
-        } else {
+        }
+        
+        // If not found in Supabase, try localStorage
+        if (!user) {
             const users = loadUsersFromLocalStorage();
             user = users.find(u => 
                 u.username.toLowerCase() === username.toLowerCase() && 
@@ -371,39 +385,30 @@ async function handleSubmit(e) {
         }
         
         if (!user) {
-            showError('phoneError', 'Telefone não confere com este usuário');
+            showError('phoneError', 'Usuário ou telefone incorreto. Verifique suas credenciais.');
+            return;
+        }
+        
+        // Normalize user data
+        const normalizedUser = normalizeUser(user);
+        
+        if (!normalizedUser) {
+            showError('phoneError', 'Erro ao processar dados do usuário. Tente novamente.');
             return;
         }
         
         // Ensure user has ID
-        if (!user.id && checkSupabaseAvailable()) {
-            try {
-                const client = getSupabaseClient();
-                const { data: supabaseUser } = await client
-                    .from('users')
-                    .select('*')
-                    .ilike('username', username)
-                    .eq('phone', phoneValidation.digits)
-                    .single();
-                
-                if (supabaseUser) {
-                    user = normalizeUser(supabaseUser);
-                } else {
-                    const savedUser = await saveUser({
-                        username: user.username,
-                        phone: user.phone,
-                        phoneFormatted: user.phoneFormatted
-                    });
-                    if (savedUser && savedUser.id) {
-                        user = savedUser;
-                    }
-                }
-            } catch (error) {
-                // Continue with localStorage user
+        if (!normalizedUser.id) {
+            if (foundInSupabase) {
+                // User from Supabase should have ID
+                normalizedUser.id = user.id;
+            } else {
+                // Generate local ID if needed
+                normalizedUser.id = 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             }
         }
         
-        const normalizedUser = normalizeUser(user);
+        // Save user and redirect
         localStorage.setItem('hypeCurrentUser', JSON.stringify(normalizedUser));
         window.location.href = 'quiz.html';
         

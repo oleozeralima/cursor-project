@@ -92,10 +92,10 @@ function createQuestionCard(question, index) {
                 <div class="mobile-buttons-container" id="mobile-buttons-${index}">
                     <div class="mobile-main-buttons">
                         <button class="mobile-main-btn mobile-btn-discordo" data-question="${index}" data-type="discordo">
-                            ↓
+                            ↑
                         </button>
                         <button class="mobile-main-btn mobile-btn-concordo" data-question="${index}" data-type="concordo">
-                            ↑
+                            ↓
                         </button>
                     </div>
                     <div class="mobile-sub-options mobile-sub-discordo" id="sub-discordo-${index}" style="display: none;">
