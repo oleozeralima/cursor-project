@@ -1,5 +1,5 @@
 // Quiz configuration
-let QUESTIONS_PER_PAGE = 3;
+let QUESTIONS_PER_PAGE = 1;
 let TOTAL_QUESTIONS = 0;
 let currentPage = 0;
 let answers = [];
@@ -60,10 +60,10 @@ function createQuestionCard(question, index) {
     card.dataset.questionIndex = index;
         
     card.innerHTML = `
-        <div class="question-header">
+            <div class="question-header">
             <h2 class="question-number">${question.id}</h2>
             <div class="question-trait">
-                <strong>${question.trait}</strong> - ${question.question}
+                ${question.question}
             </div>
         </div>
             <div class="question-content">
@@ -90,35 +90,47 @@ function createQuestionCard(question, index) {
                 </div>
                 
                 <div class="mobile-buttons-container" id="mobile-buttons-${index}">
-                    <div class="mobile-button-option" data-value="-3">
-                        <span class="mobile-button-bullet">•</span>
-                        <input type="radio" name="answer-${index}" id="answer-${index}--3" value="-3" class="mobile-radio">
-                        <label for="answer-${index}--3" class="mobile-label">Vejo totalmente o quadro geral</label>
+                    <div class="mobile-main-buttons">
+                        <button class="mobile-main-btn mobile-btn-discordo" data-question="${index}" data-type="discordo">
+                            Discordo
+                        </button>
+                        <button class="mobile-main-btn mobile-btn-concordo" data-question="${index}" data-type="concordo">
+                            Concordo
+                        </button>
                     </div>
-                    <div class="mobile-button-option" data-value="-2">
-                        <span class="mobile-button-bullet">•</span>
-                        <input type="radio" name="answer-${index}" id="answer-${index}--2" value="-2" class="mobile-radio">
-                        <label for="answer-${index}--2" class="mobile-label">Mais geral do que detalhes</label>
+                    <div class="mobile-sub-options mobile-sub-discordo" id="sub-discordo-${index}" style="display: none;">
+                        <div class="mobile-sub-option" data-value="-3">
+                            <span class="mobile-button-bullet">•</span>
+                            <input type="radio" name="answer-${index}" id="answer-${index}--3" value="-3" class="mobile-radio">
+                            <label for="answer-${index}--3" class="mobile-label">-3</label>
+                        </div>
+                        <div class="mobile-sub-option" data-value="-2">
+                            <span class="mobile-button-bullet">•</span>
+                            <input type="radio" name="answer-${index}" id="answer-${index}--2" value="-2" class="mobile-radio">
+                            <label for="answer-${index}--2" class="mobile-label">-2</label>
+                        </div>
+                        <div class="mobile-sub-option" data-value="-1">
+                            <span class="mobile-button-bullet">•</span>
+                            <input type="radio" name="answer-${index}" id="answer-${index}--1" value="-1" class="mobile-radio">
+                            <label for="answer-${index}--1" class="mobile-label">-1</label>
+                        </div>
                     </div>
-                    <div class="mobile-button-option" data-value="-1">
-                        <span class="mobile-button-bullet">•</span>
-                        <input type="radio" name="answer-${index}" id="answer-${index}--1" value="-1" class="mobile-radio">
-                        <label for="answer-${index}--1" class="mobile-label">Levemente mais geral</label>
-                    </div>
-                    <div class="mobile-button-option" data-value="1">
-                        <span class="mobile-button-bullet">•</span>
-                        <input type="radio" name="answer-${index}" id="answer-${index}-1" value="1" class="mobile-radio">
-                        <label for="answer-${index}-1" class="mobile-label">Levemente mais detalhes</label>
-                    </div>
-                    <div class="mobile-button-option" data-value="2">
-                        <span class="mobile-button-bullet">•</span>
-                        <input type="radio" name="answer-${index}" id="answer-${index}-2" value="2" class="mobile-radio">
-                        <label for="answer-${index}-2" class="mobile-label">Mais detalhes do que geral</label>
-                    </div>
-                    <div class="mobile-button-option" data-value="3">
-                        <span class="mobile-button-bullet">•</span>
-                        <input type="radio" name="answer-${index}" id="answer-${index}-3" value="3" class="mobile-radio">
-                        <label for="answer-${index}-3" class="mobile-label">Foco total em detalhes</label>
+                    <div class="mobile-sub-options mobile-sub-concordo" id="sub-concordo-${index}" style="display: none;">
+                        <div class="mobile-sub-option" data-value="1">
+                            <span class="mobile-button-bullet">•</span>
+                            <input type="radio" name="answer-${index}" id="answer-${index}-1" value="1" class="mobile-radio">
+                            <label for="answer-${index}-1" class="mobile-label">1</label>
+                        </div>
+                        <div class="mobile-sub-option" data-value="2">
+                            <span class="mobile-button-bullet">•</span>
+                            <input type="radio" name="answer-${index}" id="answer-${index}-2" value="2" class="mobile-radio">
+                            <label for="answer-${index}-2" class="mobile-label">2</label>
+                        </div>
+                        <div class="mobile-sub-option" data-value="3">
+                            <span class="mobile-button-bullet">•</span>
+                            <input type="radio" name="answer-${index}" id="answer-${index}-3" value="3" class="mobile-radio">
+                            <label for="answer-${index}-3" class="mobile-label">3</label>
+                        </div>
                     </div>
                 </div>
             
@@ -264,8 +276,38 @@ function setupMobileButtons(index) {
     const container = document.getElementById(`mobile-buttons-${index}`);
     if (!container) return;
     
-    const radioButtons = container.querySelectorAll('.mobile-radio');
+    // Main buttons (Discordo/Concordo)
+    const discordoBtn = container.querySelector('.mobile-btn-discordo');
+    const concordoBtn = container.querySelector('.mobile-btn-concordo');
+    const subDiscordo = document.getElementById(`sub-discordo-${index}`);
+    const subConcordo = document.getElementById(`sub-concordo-${index}`);
     
+    if (discordoBtn) {
+        discordoBtn.addEventListener('click', () => {
+            // Hide concordo sub-options
+            if (subConcordo) subConcordo.style.display = 'none';
+            // Show discordo sub-options
+            if (subDiscordo) subDiscordo.style.display = 'flex';
+            // Update button states
+            discordoBtn.classList.add('active');
+            concordoBtn?.classList.remove('active');
+        });
+    }
+    
+    if (concordoBtn) {
+        concordoBtn.addEventListener('click', () => {
+            // Hide discordo sub-options
+            if (subDiscordo) subDiscordo.style.display = 'none';
+            // Show concordo sub-options
+            if (subConcordo) subConcordo.style.display = 'flex';
+            // Update button states
+            concordoBtn.classList.add('active');
+            discordoBtn?.classList.remove('active');
+        });
+    }
+    
+    // Sub-option radio buttons
+    const radioButtons = container.querySelectorAll('.mobile-radio');
     radioButtons.forEach(radio => {
         radio.addEventListener('change', (e) => {
             const value = parseInt(e.target.value);
@@ -312,13 +354,60 @@ function setAnswerValue(index, value) {
     const container = document.getElementById(`mobile-buttons-${index}`);
     if (container) {
         const radioButtons = container.querySelectorAll('.mobile-radio');
+        const discordoBtn = container.querySelector('.mobile-btn-discordo');
+        const concordoBtn = container.querySelector('.mobile-btn-concordo');
+        const subDiscordo = document.getElementById(`sub-discordo-${index}`);
+        const subConcordo = document.getElementById(`sub-concordo-${index}`);
+        
         radioButtons.forEach(radio => {
             radio.checked = parseInt(radio.value) === value;
         });
+        
+        // Show appropriate sub-options and update button states based on value
+        if (value !== null && value !== 0) {
+            if (value < 0) {
+                // Negative value - show discordo sub-options
+                if (subDiscordo) subDiscordo.style.display = 'flex';
+                if (subConcordo) subConcordo.style.display = 'none';
+                if (discordoBtn) discordoBtn.classList.add('active');
+                if (concordoBtn) concordoBtn.classList.remove('active');
+            } else {
+                // Positive value - show concordo sub-options
+                if (subDiscordo) subDiscordo.style.display = 'none';
+                if (subConcordo) subConcordo.style.display = 'flex';
+                if (discordoBtn) discordoBtn.classList.remove('active');
+                if (concordoBtn) concordoBtn.classList.add('active');
+            }
+        } else {
+            // No answer - hide all sub-options
+            if (subDiscordo) subDiscordo.style.display = 'none';
+            if (subConcordo) subConcordo.style.display = 'none';
+            if (discordoBtn) discordoBtn.classList.remove('active');
+            if (concordoBtn) concordoBtn.classList.remove('active');
+        }
     }
     
     updateNextButtonState();
     saveAnswers();
+    
+    // Auto-advance to next question when answered
+    if (value !== null && value !== 0) {
+        autoAdvanceToNext(index);
+    }
+}
+
+function autoAdvanceToNext(currentIndex) {
+    // Wait a bit for visual feedback, then advance
+    setTimeout(() => {
+        // Check if there's a next question
+        if (currentIndex < TOTAL_QUESTIONS - 1) {
+            const nextPage = currentIndex + 1; // Since QUESTIONS_PER_PAGE = 1, page = question index
+            showQuestionPage(nextPage);
+        } else {
+            // Last question - check if all are answered and enable results button
+            updateNextButtonState();
+        }
+    }, 500);
 }
 
 function showQuestionPage(pageIndex) {

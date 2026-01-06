@@ -705,20 +705,71 @@ section h2 {
 .mobile-buttons-container {
     display: none;
     flex-direction: column;
-    gap: 12px;
+    gap: 20px;
     padding: 20px 0;
 }
 
-.mobile-button-option {
+.mobile-main-buttons {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+}
+
+.mobile-main-btn {
+    flex: 1;
+    padding: 18px 24px;
+    border: 2px solid var(--bg-secondary);
+    border-radius: 12px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.mobile-main-btn:hover {
+    background: var(--bg-secondary);
+    transform: translateY(-2px);
+}
+
+.mobile-main-btn.active {
+    background: var(--accent-orange);
+    border-color: var(--accent-orange);
+    color: var(--text-primary);
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+}
+
+.mobile-sub-options {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    padding: 15px 0 0 0;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mobile-sub-option {
     display: flex;
     align-items: center;
     gap: 12px;
     cursor: pointer;
-    padding: 8px 0;
+    padding: 10px 0;
     transition: opacity 0.2s ease;
 }
 
-.mobile-button-option:hover {
+.mobile-sub-option:hover {
     opacity: 0.8;
 }
 
@@ -750,7 +801,7 @@ section h2 {
     padding: 0;
 }
 
-.mobile-button-option:hover .mobile-label {
+.mobile-sub-option:hover .mobile-label {
     color: var(--accent-orange);
 }
 
