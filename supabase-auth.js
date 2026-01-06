@@ -280,6 +280,14 @@ function toggleMode() {
     const phoneInput = document.getElementById('phone');
     const usernameSuccess = document.getElementById('usernameSuccess');
     
+    console.log('Elements found:', {
+        pageTitle: !!pageTitle,
+        pageSubtitle: !!pageSubtitle,
+        submitBtn: !!submitBtn,
+        toggleText: !!toggleText,
+        toggleModeBtn: !!toggleModeBtn
+    });
+    
     hideError('usernameError');
     hideError('phoneError');
     hideSuccess('usernameSuccess');
@@ -290,20 +298,53 @@ function toggleMode() {
     if (phoneInput) phoneInput.value = '';
     
     if (isLoginMode) {
-        if (pageTitle) pageTitle.textContent = 'Login';
-        if (pageSubtitle) pageSubtitle.textContent = 'Acesse sua conta para continuar';
-        if (submitBtn) submitBtn.textContent = 'Entrar';
-        if (toggleText) toggleText.textContent = 'Não tem uma conta?';
-        if (toggleModeBtn) toggleModeBtn.textContent = 'Criar nova conta';
+        console.log('Setting to LOGIN mode');
+        if (pageTitle) {
+            pageTitle.textContent = 'Login';
+            console.log('Page title updated to Login');
+        }
+        if (pageSubtitle) {
+            pageSubtitle.textContent = 'Acesse sua conta para continuar';
+            console.log('Page subtitle updated');
+        }
+        if (submitBtn) {
+            submitBtn.textContent = 'Entrar';
+            console.log('Submit button updated to Entrar');
+        }
+        if (toggleText) {
+            toggleText.textContent = 'Não tem uma conta?';
+            console.log('Toggle text updated');
+        }
+        if (toggleModeBtn) {
+            toggleModeBtn.textContent = 'Criar nova conta';
+            console.log('Toggle button updated to Criar nova conta');
+        }
         // Hide username success message in login mode
         if (usernameSuccess) usernameSuccess.style.display = 'none';
     } else {
-        if (pageTitle) pageTitle.textContent = 'Registro';
-        if (pageSubtitle) pageSubtitle.textContent = 'Crie sua conta para começar';
-        if (submitBtn) submitBtn.textContent = 'Criar Conta';
-        if (toggleText) toggleText.textContent = 'Já tem uma conta?';
-        if (toggleModeBtn) toggleModeBtn.textContent = 'Fazer login';
+        console.log('Setting to REGISTER mode');
+        if (pageTitle) {
+            pageTitle.textContent = 'Registro';
+            console.log('Page title updated to Registro');
+        }
+        if (pageSubtitle) {
+            pageSubtitle.textContent = 'Crie sua conta para começar';
+            console.log('Page subtitle updated');
+        }
+        if (submitBtn) {
+            submitBtn.textContent = 'Criar Conta';
+            console.log('Submit button updated to Criar Conta');
+        }
+        if (toggleText) {
+            toggleText.textContent = 'Já tem uma conta?';
+            console.log('Toggle text updated');
+        }
+        if (toggleModeBtn) {
+            toggleModeBtn.textContent = 'Fazer login';
+            console.log('Toggle button updated to Fazer login');
+        }
     }
+    console.log('Toggle mode completed');
 }
 
 async function handleSubmit(e) {
@@ -536,63 +577,67 @@ function initializeAuth() {
         const form = document.getElementById('authForm');
         const toggleBtn = document.getElementById('toggleModeBtn');
         const submitBtn = document.getElementById('submitBtn');
+        const phoneInput = document.getElementById('phone');
+        const usernameInput = document.getElementById('username');
         
-        if (form && toggleBtn && submitBtn) {
-            // Remove any existing listeners by cloning
-            const newForm = form.cloneNode(true);
-            form.parentNode.replaceChild(newForm, form);
-            
-            // Re-get elements
-            const finalForm = document.getElementById('authForm');
-            const finalToggleBtn = document.getElementById('toggleModeBtn');
-            const finalSubmitBtn = document.getElementById('submitBtn');
-            const finalPhoneInput = document.getElementById('phone');
-            const finalUsernameInput = document.getElementById('username');
-            
-            if (finalForm && finalToggleBtn && finalSubmitBtn) {
-                // Add all event listeners
-                finalForm.addEventListener('submit', handleSubmit);
-                finalSubmitBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    handleSubmit(e);
-                });
-                finalToggleBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toggleMode();
-                });
-                
-                if (finalPhoneInput) {
-                    finalPhoneInput.addEventListener('input', () => {
-                        formatPhoneInput(finalPhoneInput);
-                        hideError('phoneError');
-                    });
-                }
-                
-                if (finalUsernameInput) {
-                    finalUsernameInput.addEventListener('blur', async () => {
-                        if (!isLoginMode && finalUsernameInput.value.trim()) {
-                            const validation = await validateUsername(finalUsernameInput.value.trim(), false);
-                            if (validation.valid) {
-                                hideError('usernameError');
-                                showSuccess('usernameSuccess', '✓ Nome de usuário disponível');
-                            } else {
-                                hideSuccess('usernameSuccess');
-                                showError('usernameError', validation.error);
-                            }
-                        }
-                    });
-                    
-                    finalUsernameInput.addEventListener('input', () => {
-                        hideError('usernameError');
-                        hideSuccess('usernameSuccess');
-                        finalUsernameInput.classList.remove('error');
-                    });
-                }
-                
-                console.log('Auth form initialized successfully');
+        if (form && toggleBtn && submitBtn && phoneInput && usernameInput) {
+            // Check if already initialized to avoid duplicate listeners
+            if (form.dataset.initialized === 'true') {
+                console.log('Form already initialized, skipping...');
                 return true;
             }
+            
+            // Mark as initialized
+            form.dataset.initialized = 'true';
+            
+            // Add all event listeners directly (no cloning needed)
+            form.addEventListener('submit', handleSubmit);
+            
+            submitBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                handleSubmit(e);
+            });
+            
+            toggleBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Toggle button clicked, calling toggleMode()');
+                toggleMode();
+            });
+            
+            const phoneInput = document.getElementById('phone');
+            const usernameInput = document.getElementById('username');
+            
+            if (phoneInput) {
+                phoneInput.addEventListener('input', () => {
+                    formatPhoneInput(phoneInput);
+                    hideError('phoneError');
+                });
+            }
+            
+            if (usernameInput) {
+                usernameInput.addEventListener('blur', async () => {
+                    if (!isLoginMode && usernameInput.value.trim()) {
+                        const validation = await validateUsername(usernameInput.value.trim(), false);
+                        if (validation.valid) {
+                            hideError('usernameError');
+                            showSuccess('usernameSuccess', '✓ Nome de usuário disponível');
+                        } else {
+                            hideSuccess('usernameSuccess');
+                            showError('usernameError', validation.error);
+                        }
+                    }
+                });
+                
+                usernameInput.addEventListener('input', () => {
+                    hideError('usernameError');
+                    hideSuccess('usernameSuccess');
+                    usernameInput.classList.remove('error');
+                });
+            }
+            
+            console.log('Auth form initialized successfully');
+            return true;
         }
         
         if (attempts < maxAttempts) {
