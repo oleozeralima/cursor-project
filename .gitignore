@@ -75,3 +75,7 @@ build/
 *.keystore
 *private*
 *secret*
+
+# Supabase config (use example file instead)
+supabase-config.js
+!supabase-config.example.js

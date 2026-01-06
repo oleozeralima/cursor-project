@@ -37,13 +37,16 @@ Guia passo a passo para colocar seu site no ar usando Supabase, GitHub e Vercel.
 
 ### 1.3 Atualizar Configuração
 
-1. Abra o arquivo `supabase-config.js` no projeto
-2. Substitua as credenciais:
+1. **Se não existir**, copie o arquivo `supabase-config.example.js` para `supabase-config.js`
+2. Abra o arquivo `supabase-config.js` no projeto
+3. Substitua as credenciais:
    ```javascript
    const SUPABASE_URL = 'COLE_AQUI_A_URL';
    const SUPABASE_ANON_KEY = 'COLE_AQUI_A_CHAVE';
    ```
-3. Salve o arquivo (Ctrl+S)
+4. Salve o arquivo (Ctrl+S)
+
+**⚠️ Nota:** O arquivo `supabase-config.js` não é versionado no Git (está no .gitignore) por segurança. Use o arquivo de exemplo como referência.
 
 ### 1.4 Criar Banco de Dados
 

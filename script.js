@@ -62,7 +62,7 @@ function createQuestionCard(question, index) {
         <div class="question-header">
             <h2 class="question-number">${question.id}</h2>
             <div class="question-trait">
-                <strong>${question.trait}</strong> - ${question.question}
+                ${question.question}
             </div>
         </div>
             <div class="question-content">
