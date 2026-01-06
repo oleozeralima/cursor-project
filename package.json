@@ -1,0 +1,27 @@
+{
+  "name": "hype-quiz",
+  "version": "1.0.0",
+  "description": "Análise de personalidade profissional baseada no modelo BIG 5",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve . -p 3000",
+    "start": "npx serve . -p 3000",
+    "lint": "echo 'No linter configured yet'"
+  },
+  "keywords": [
+    "big5",
+    "personality",
+    "quiz",
+    "assessment"
+  ],
+  "author": "HYPE™",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
+

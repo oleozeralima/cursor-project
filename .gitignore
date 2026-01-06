@@ -1,27 +1,26 @@
-# OS Files
+# Dependências
+node_modules/
+package-lock.json
+yarn.lock
+
+# Variáveis de ambiente
+.env
+.env.local
+.env.production
+supabase-config.js
+
+# Arquivos de sistema
 .DS_Store
 Thumbs.db
-desktop.ini
-
-# Editor directories and files
-.vscode/
-.idea/
 *.swp
 *.swo
 *~
-.project
-.classpath
-.settings/
-.cursor/
 
-# Android files (NUNCA commitar chaves privadas!)
-.android/
-*.key
-*.pem
-*.p12
-*.keystore
-adbkey
-adbkey.pub
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
 
 # Logs
 *.log
@@ -29,53 +28,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
+# Build
+dist/
+build/
+.vercel/
 
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Temporary files
+# Temporários
 *.tmp
 *.temp
 .cache/
-
-# Environment variables (if you add them later)
-.env
-.env.local
-.env.*.local
-
-# Build outputs (if you add build process later)
-dist/
-build/
-*.min.js
-*.min.css
-
-# Local development
-.local/
-
-# OneDrive files
-~$*
-
-# System files
-*.db
-*.db-shm
-*.db-wal
-
-# Private keys and sensitive files
-*.key
-*.pem
-*.p12
-*.keystore
-*private*
-*secret*
-
-# Supabase config (use example file instead)
-supabase-config.js
-!supabase-config.example.js

@@ -1,7 +1,3 @@
-// Supabase integration for quiz answers
-// Simplified version with localStorage fallback
-
-// Helper functions
 function checkSupabaseAvailableQuiz() {
     if (typeof window.isSupabaseAvailable === 'function') {
         return window.isSupabaseAvailable();
@@ -14,24 +10,24 @@ function getSupabaseClientQuiz() {
     return window.supabaseClient || null;
 }
 
-// Save quiz answers to Supabase
 async function saveAnswersToSupabase(answers) {
-    // Always save to localStorage first (backup)
-    localStorage.setItem('hypeAnswers', JSON.stringify(answers));
-    
+    try {
+        localStorage.setItem('hypeAnswers', JSON.stringify(answers));
+    } catch (error) {
+        console.error('Erro ao salvar no localStorage:', error);
+    }
+
     if (!checkSupabaseAvailableQuiz()) {
         return;
     }
-    
+
     const currentUser = JSON.parse(localStorage.getItem('hypeCurrentUser') || '{}');
     if (!currentUser.id) {
         return;
     }
-    
+
     try {
         const client = getSupabaseClientQuiz();
-        
-        // Prepare responses to insert (only valid answers)
         const responses = answers
             .map((answer, index) => ({
                 user_id: currentUser.id,
@@ -39,40 +35,37 @@ async function saveAnswersToSupabase(answers) {
                 answer: answer
             }))
             .filter(r => r.answer !== null && r.answer !== undefined && r.answer !== 0);
-        
+
         if (responses.length > 0) {
-            // Delete existing responses for this user first
             await client
                 .from('quiz_responses')
                 .delete()
                 .eq('user_id', currentUser.id);
-            
-            // Insert new responses
+
             const { error } = await client
                 .from('quiz_responses')
                 .insert(responses)
                 .select();
-            
+
             if (error) {
                 throw error;
             }
         }
     } catch (error) {
-        // Data already saved to localStorage as backup
+        console.error('Erro ao salvar no Supabase:', error);
     }
 }
 
-// Load quiz answers from Supabase
 async function loadAnswersFromSupabase(totalQuestions) {
     if (!checkSupabaseAvailableQuiz()) {
         return loadAnswersFromLocalStorage(totalQuestions);
     }
-    
+
     const currentUser = JSON.parse(localStorage.getItem('hypeCurrentUser') || '{}');
     if (!currentUser.id) {
         return loadAnswersFromLocalStorage(totalQuestions);
     }
-    
+
     try {
         const client = getSupabaseClientQuiz();
         const { data, error } = await client
@@ -80,13 +73,13 @@ async function loadAnswersFromSupabase(totalQuestions) {
             .select('question_id, answer')
             .eq('user_id', currentUser.id)
             .order('question_id', { ascending: true });
-        
+
         if (error) {
+            console.error('Erro ao carregar do Supabase:', error);
             return loadAnswersFromLocalStorage(totalQuestions);
         }
-        
+
         if (data && data.length > 0) {
-            // Convert array of responses to answer array
             const answers = new Array(totalQuestions).fill(null);
             data.forEach(response => {
                 const index = response.question_id - 1;
@@ -94,19 +87,24 @@ async function loadAnswersFromSupabase(totalQuestions) {
                     answers[index] = response.answer;
                 }
             });
-            
-            // Also save to localStorage as backup
-            localStorage.setItem('hypeAnswers', JSON.stringify(answers));
+
+            try {
+                localStorage.setItem('hypeAnswers', JSON.stringify(answers));
+            } catch (error) {
+                console.error('Erro ao salvar backup no localStorage:', error);
+            }
             return answers;
         }
-        
+
         return loadAnswersFromLocalStorage(totalQuestions);
     } catch (error) {
+        console.error('Erro ao carregar do Supabase:', error);
         return loadAnswersFromLocalStorage(totalQuestions);
-            }
-        }
-        
+    }
+}
+
 function loadAnswersFromLocalStorage(totalQuestions) {
+    try {
         const saved = localStorage.getItem('hypeAnswers');
         if (saved) {
             const loadedAnswers = JSON.parse(saved);
@@ -114,20 +112,22 @@ function loadAnswersFromLocalStorage(totalQuestions) {
                 return loadedAnswers.map(value => (value === 0 ? null : value));
             }
         }
-        return null;
+    } catch (error) {
+        console.error('Erro ao carregar do localStorage:', error);
+    }
+    return null;
 }
 
-// Save quiz session (when quiz is completed)
 async function saveQuizSession(answers, big5Scores) {
     if (!checkSupabaseAvailableQuiz()) {
         return;
     }
-    
+
     const currentUser = JSON.parse(localStorage.getItem('hypeCurrentUser') || '{}');
     if (!currentUser.id) {
         return;
     }
-    
+
     try {
         const client = getSupabaseClientQuiz();
         await client
@@ -139,6 +139,6 @@ async function saveQuizSession(answers, big5Scores) {
             }])
             .select();
     } catch (error) {
-        // Silent fail - session save is not critical
+        console.error('Erro ao salvar sessão no Supabase:', error);
     }
 }

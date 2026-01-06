@@ -31,7 +31,7 @@ body {
     margin: 0 auto;
     background: var(--bg-secondary);
     border-radius: 20px;
-    padding: 30px;
+    padding: 25px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
 }
 
@@ -39,9 +39,9 @@ header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 15px;
 }
 
 .logo {
@@ -107,16 +107,15 @@ header {
 }
 
 .questions-container {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .question-card {
     background: var(--bg-card);
     border-radius: 15px;
-    padding: 25px;
-    margin-bottom: 30px;
+    padding: 20px;
+    margin-bottom: 20px;
     display: none;
-    min-height: 400px;
     transition: opacity 0.3s ease;
 }
 
@@ -144,28 +143,29 @@ header {
     display: flex;
     align-items: center;
     gap: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .question-number {
-    font-size: 48px;
+    font-size: 42px;
     font-weight: bold;
     color: var(--text-primary);
     opacity: 0.3;
     margin: 0;
+    line-height: 1;
 }
 
 .question-trait {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 500;
     color: var(--text-primary);
-    line-height: 1.5;
+    line-height: 1.4;
 }
 
 .question-content {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
     flex-wrap: wrap;
 }
 
@@ -174,7 +174,7 @@ header {
     min-width: 220px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
 .statement-wrapper.left {
@@ -208,16 +208,17 @@ header {
 }
 
 .statement {
-    font-size: 16px;
-    line-height: 1.6;
+    font-size: 15px;
+    line-height: 1.5;
     color: var(--text-secondary);
+    margin: 0;
 }
 
 .slider-container {
     flex: 1;
     min-width: 300px;
     position: relative;
-    padding: 30px 0 40px 0;
+    padding: 20px 0 25px 0;
 }
 
 .slider-labels {
@@ -339,14 +340,15 @@ header {
 .navigation {
     display: flex;
     justify-content: space-between;
-    gap: 20px;
+    gap: 15px;
+    margin-top: 10px;
 }
 
 .nav-btn {
-    padding: 15px 30px;
+    padding: 12px 25px;
     border: none;
     border-radius: 10px;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -730,27 +732,29 @@ section h2 {
     }
 
     .question-card {
-        padding: 20px;
-        min-height: auto;
+        padding: 15px;
+        margin-bottom: 15px;
     }
     
     .question-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 10px;
+        gap: 8px;
+        margin-bottom: 12px;
     }
     
     .question-number {
-        font-size: 36px;
+        font-size: 32px;
     }
 
     .question-content {
         flex-direction: column;
-        gap: 15px;
+        gap: 12px;
     }
     
     .statement-wrapper {
         min-width: 100%;
+        gap: 6px;
     }
 
     .statement {
@@ -769,7 +773,7 @@ section h2 {
 
     .slider-container {
         min-width: 100%;
-        padding: 20px 0 30px 0;
+        padding: 15px 0 20px 0;
     }
 
     .skills-grid,

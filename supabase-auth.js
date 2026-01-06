@@ -1,9 +1,5 @@
-// Supabase Authentication and user management
-// Simplified version with localStorage fallback
+let isLoginMode = false;
 
-let isLoginMode = false; // Começar no modo de cadastro
-
-// Helper functions
 function checkSupabaseAvailable() {
     if (typeof window.isSupabaseAvailable === 'function') {
         return window.isSupabaseAvailable();
@@ -16,18 +12,19 @@ function getSupabaseClient() {
     return window.supabaseClient || null;
 }
 
-// Load users from Supabase or localStorage (fallback)
 async function loadUsers() {
     if (checkSupabaseAvailable()) {
         try {
             const client = getSupabaseClient();
             const { data, error } = await client.from('users').select('*');
-            
+
             if (error) {
+                console.error('Erro ao carregar usuários do Supabase:', error);
                 return loadUsersFromLocalStorage();
             }
             return data || [];
         } catch (error) {
+            console.error('Erro ao carregar usuários:', error);
             return loadUsersFromLocalStorage();
         }
     }
@@ -35,11 +32,15 @@ async function loadUsers() {
 }
 
 function loadUsersFromLocalStorage() {
-    const stored = localStorage.getItem('hypeUsers');
-    return stored ? JSON.parse(stored) : [];
+    try {
+        const stored = localStorage.getItem('hypeUsers');
+        return stored ? JSON.parse(stored) : [];
+    } catch (error) {
+        console.error('Erro ao carregar usuários do localStorage:', error);
+        return [];
+    }
 }
 
-// Save user to Supabase or localStorage (fallback)
 async function saveUser(user) {
     if (checkSupabaseAvailable()) {
         try {
@@ -49,34 +50,36 @@ async function saveUser(user) {
                 phone: user.phone,
                 phone_formatted: user.phoneFormatted || user.phone_formatted
             };
-            
+
             const { data, error } = await client
                 .from('users')
                 .insert([userData])
                 .select()
                 .single();
-            
+
             if (error) {
-                // If user already exists, fetch existing user
+                // Se usuário já existe, busca usuário existente
                 if (error.code === '23505') {
                     const { data: existingUser } = await client
                         .from('users')
                         .select('*')
                         .eq('username', user.username)
                         .single();
-                    
+
                     if (existingUser) {
                         return normalizeUser(existingUser);
                     }
                 }
+                console.error('Erro ao salvar usuário no Supabase:', error);
                 return saveUserToLocalStorage(user);
             }
-            
+
             if (data) {
                 return normalizeUser(data);
             }
             return saveUserToLocalStorage(user);
         } catch (error) {
+            console.error('Erro ao salvar usuário:', error);
             return saveUserToLocalStorage(user);
         }
     }
@@ -84,16 +87,22 @@ async function saveUser(user) {
 }
 
 function saveUserToLocalStorage(user) {
-    let users = loadUsersFromLocalStorage();
-    if (!user.id) {
-        user.id = 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    try {
+        let users = loadUsersFromLocalStorage();
+        if (!user.id) {
+            user.id = 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        users.push(user);
+        localStorage.setItem('hypeUsers', JSON.stringify(users));
+        return user;
+    } catch (error) {
+        console.error('Erro ao salvar usuário no localStorage:', error);
+        return user;
     }
-    users.push(user);
-    localStorage.setItem('hypeUsers', JSON.stringify(users));
-    return user;
 }
 
 function normalizeUser(user) {
+    if (!user) return null;
     return {
         id: user.id,
         username: user.username,
@@ -103,7 +112,6 @@ function normalizeUser(user) {
     };
 }
 
-// Validate Brazilian phone number
 function validateBrazilianPhone(phone) {
     const digits = phone.replace(/\D/g, '');
     
@@ -126,7 +134,6 @@ function validateBrazilianPhone(phone) {
     return { valid: true, formatted: formatted, digits: digits };
 }
 
-// Format phone input while typing
 function formatPhoneInput(input) {
     let value = input.value.replace(/\D/g, '');
     
@@ -146,7 +153,6 @@ function formatPhoneInput(input) {
     }
 }
 
-// Check if username already exists
 async function usernameExists(username) {
     if (checkSupabaseAvailable()) {
         try {
@@ -170,7 +176,6 @@ async function usernameExists(username) {
         return users.some(user => user.username.toLowerCase() === username.toLowerCase());
 }
 
-// Check if phone already exists
 async function phoneExists(phone) {
     if (checkSupabaseAvailable()) {
         try {
@@ -234,7 +239,6 @@ function hideSuccess(elementId) {
     }
 }
 
-// Validate username
 async function validateUsername(username, isLogin = false) {
     if (!username || username.trim().length === 0) {
         return { valid: false, error: 'Nome de usuário é obrigatório' };
@@ -263,7 +267,6 @@ async function validateUsername(username, isLogin = false) {
     return { valid: true };
 }
 
-// Switch between login and register mode
 function toggleMode() {
     isLoginMode = !isLoginMode;
     
@@ -299,7 +302,6 @@ function toggleMode() {
     }
 }
 
-// Handle form submission
 async function handleSubmit(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -421,7 +423,6 @@ async function handleSubmit(e) {
     }
 }
 
-// Initialize auth form
 function initAuthForm() {
     try {
         const form = document.getElementById('authForm');
@@ -470,9 +471,7 @@ function initAuthForm() {
     }
 }
 
-// Initialize form in registration mode
 function initializeFormMode() {
-    // Como isLoginMode = false, precisamos configurar a interface para registro
     const pageTitle = document.getElementById('pageTitle');
     const pageSubtitle = document.getElementById('pageSubtitle');
     const submitBtn = document.getElementById('submitBtn');

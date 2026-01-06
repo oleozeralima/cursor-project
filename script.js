@@ -1,22 +1,19 @@
-// Quiz configuration
 let QUESTIONS_PER_PAGE = 1;
 let TOTAL_QUESTIONS = 0;
 let currentPage = 0;
 let answers = [];
 let autoAdvanceTimeout = null;
 
-// Initialize the quiz
 document.addEventListener('DOMContentLoaded', async function() {
-    // Ensure questions are loaded
     if (typeof questions === 'undefined' || !questions || questions.length === 0) {
         console.error('Questions not loaded! Make sure questions.js is loaded before script.js');
         alert('Erro ao carregar as perguntas. Por favor, recarregue a página.');
         return;
     }
-    
+
     TOTAL_QUESTIONS = questions.length;
     answers = new Array(TOTAL_QUESTIONS).fill(null);
-    
+
     initQuestions();
     updateProgress();
     setupNavigation();
@@ -30,22 +27,16 @@ function initQuestions() {
         console.error('Questions container not found!');
         return;
     }
-    
+
     container.innerHTML = '';
 
-    // Calculate total pages
-    const totalPages = Math.ceil(TOTAL_QUESTIONS / QUESTIONS_PER_PAGE);
-
-    // Create question cards - one per question since QUESTIONS_PER_PAGE = 1
     for (let i = 0; i < TOTAL_QUESTIONS; i++) {
         const question = questions[i];
         const questionCard = createQuestionCard(question, i);
         container.appendChild(questionCard);
-        // Setup slider after card is in the DOM
         setupSlider(i);
     }
 
-    // Show first page
     showQuestionPage(0);
 }
 
@@ -53,7 +44,7 @@ function createQuestionCard(question, index) {
     const card = document.createElement('div');
     card.className = 'question-card';
     card.dataset.questionIndex = index;
-        
+
     card.innerHTML = `
         <div class="question-header">
             <h2 class="question-number">${question.id}</h2>
@@ -61,36 +52,34 @@ function createQuestionCard(question, index) {
                 ${question.question}
             </div>
         </div>
-            <div class="question-content">
+        <div class="question-content">
             <div class="statement-wrapper left">
                 <span class="trait-label left-label">${question.leftLabel}</span>
                 <p class="statement">${question.left}</p>
             </div>
-            
-                <div class="slider-container">
+            <div class="slider-container">
                 <div class="slider-labels" id="labels-${index}">
-                    ${[-3, -2, -1, 0, 1, 2, 3].map(val => 
+                    ${[-3, -2, -1, 0, 1, 2, 3].map(val =>
                         `<span class="slider-label" data-value="${val}">${val}</span>`
                     ).join('')}
-                    </div>
+                </div>
                 <div class="slider-track" id="track-${index}">
-                        <div class="slider-notches">
-                        ${[-3, -2, -1, 0, 1, 2, 3].map(val => 
+                    <div class="slider-notches">
+                        ${[-3, -2, -1, 0, 1, 2, 3].map(val =>
                             `<div class="slider-notch" data-value="${val}"></div>`
                         ).join('')}
-                        </div>
-                        <div class="slider-fill" id="fill-${index}"></div>
-                        <div class="slider-thumb" id="thumb-${index}"></div>
                     </div>
+                    <div class="slider-fill" id="fill-${index}"></div>
+                    <div class="slider-thumb" id="thumb-${index}"></div>
                 </div>
-            
+            </div>
             <div class="statement-wrapper right">
                 <span class="trait-label right-label">${question.rightLabel}</span>
                 <p class="statement">${question.right}</p>
             </div>
-            </div>
-        `;
-        
+        </div>
+    `;
+
     return card;
 }
 
@@ -102,25 +91,19 @@ function setupSlider(index) {
     const notches = track.querySelectorAll('.slider-notch');
 
     let isDragging = false;
-    
-    // Initialize slider at center (0) but don't set as answered
-    // Thumb starts visible at center position for reference
+
     thumb.style.left = '50%';
     fill.style.left = '50%';
     fill.style.width = '0%';
 
-    // Position to value conversion - snaps to nearest notch (excluding 0)
     function positionToValue(x) {
         const rect = track.getBoundingClientRect();
         const percentage = ((x - rect.left) / rect.width) * 100;
-        
-        // Find the nearest notch position (excluding 0 - it's not a valid answer)
         const notchPositions = [8.33, 25, 41.66, 58.33, 75, 91.66];
         const notchValues = [-3, -2, -1, 1, 2, 3];
-        
         let minDistance = Infinity;
-        let nearestValue = -1; // Default to -1 if somehow no match found
-        
+        let nearestValue = -1;
+
         for (let i = 0; i < notchPositions.length; i++) {
             const distance = Math.abs(percentage - notchPositions[i]);
             if (distance < minDistance) {
@@ -128,13 +111,12 @@ function setupSlider(index) {
                 nearestValue = notchValues[i];
             }
         }
-        
-        return nearestValue;
-}
 
-    // Value to position conversion - matches the CSS notch positions exactly
-function valueToPosition(value) {
-    const positions = {
+        return nearestValue;
+    }
+
+    function valueToPosition(value) {
+        const positions = {
             '-3': 8.33,
             '-2': 25,
             '-1': 41.66,
@@ -142,11 +124,10 @@ function valueToPosition(value) {
             '1': 58.33,
             '2': 75,
             '3': 91.66
-    };
-    return positions[value.toString()] || 50;
-}
+        };
+        return positions[value.toString()] || 50;
+    }
 
-    // Update slider visual state
     function updateSlider(value) {
         const position = valueToPosition(value);
         thumb.style.left = `${position}%`;
@@ -156,16 +137,11 @@ function valueToPosition(value) {
             fill.style.left = `${position}%`;
             fill.style.width = `${50 - position}%`;
         }
-        // Keep all numbers visible - they're always shown above marks
     }
 
-    // Set slider value (0 is not allowed)
     function setValue(value, isAutoAdvance = true) {
-        // Reject 0 as a valid answer
         if (value === 0) {
-            // Reset to null if trying to set 0
             answers[index] = null;
-            // Reset slider to center position but don't save as answered
             thumb.style.left = '50%';
             fill.style.left = '50%';
             fill.style.width = '0%';
@@ -173,15 +149,11 @@ function valueToPosition(value) {
             const wasUnanswered = answers[index] === null || answers[index] === undefined || answers[index] === 0;
             answers[index] = value;
             updateSlider(value);
-            
-            // Auto-advance to next question after a short delay
+
             if (isAutoAdvance && wasUnanswered) {
-                // Clear any existing timeout
                 if (autoAdvanceTimeout) {
                     clearTimeout(autoAdvanceTimeout);
                 }
-                
-                // Wait 500ms before auto-advancing for better UX
                 autoAdvanceTimeout = setTimeout(() => {
                     autoAdvanceToNext();
                 }, 500);
@@ -189,41 +161,33 @@ function valueToPosition(value) {
         }
         updateNextButtonState();
         saveAnswers();
-        }
-        
-    // Mouse events - only allow dragging the thumb, not clicking the track
+    }
     thumb.addEventListener('mousedown', (e) => {
-                e.stopPropagation();
-            isDragging = true;
-        });
-        
-        document.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-            const value = positionToValue(e.clientX);
-            // Don't auto-advance while dragging, only when mouse is released
-            setValue(value, false);
-            }
-        });
-        
-        document.addEventListener('mouseup', () => {
-            if (isDragging) {
-                // When drag ends, check if we should auto-advance
-                const currentAnswer = answers[index];
-                if (currentAnswer !== null && currentAnswer !== undefined && currentAnswer !== 0) {
-                    // Clear any existing timeout
-                    if (autoAdvanceTimeout) {
-                        clearTimeout(autoAdvanceTimeout);
-                    }
-                    // Auto-advance after a short delay
-                    autoAdvanceTimeout = setTimeout(() => {
-                        autoAdvanceToNext();
-                    }, 500);
-                }
-            }
-            isDragging = false;
-        });
+        e.stopPropagation();
+        isDragging = true;
+    });
 
-    // Touch events - only allow dragging the thumb
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            setValue(positionToValue(e.clientX), false);
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isDragging) {
+            const currentAnswer = answers[index];
+            if (currentAnswer !== null && currentAnswer !== undefined && currentAnswer !== 0) {
+                if (autoAdvanceTimeout) {
+                    clearTimeout(autoAdvanceTimeout);
+                }
+                autoAdvanceTimeout = setTimeout(() => {
+                    autoAdvanceToNext();
+                }, 500);
+            }
+        }
+        isDragging = false;
+    });
+
     thumb.addEventListener('touchstart', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -233,35 +197,27 @@ function valueToPosition(value) {
     document.addEventListener('touchmove', (e) => {
         if (isDragging) {
             e.preventDefault();
-            const touch = e.touches[0];
-            const value = positionToValue(touch.clientX);
-            // Don't auto-advance while dragging
-            setValue(value, false);
+            setValue(positionToValue(e.touches[0].clientX), false);
         }
     });
-        
-        document.addEventListener('touchend', () => {
-            if (isDragging) {
-                // When touch ends, check if we should auto-advance
-                const currentAnswer = answers[index];
-                if (currentAnswer !== null && currentAnswer !== undefined && currentAnswer !== 0) {
-                    // Clear any existing timeout
-                    if (autoAdvanceTimeout) {
-                        clearTimeout(autoAdvanceTimeout);
-                    }
-                    // Auto-advance after a short delay
-                    autoAdvanceTimeout = setTimeout(() => {
-                        autoAdvanceToNext();
-                    }, 500);
+
+    document.addEventListener('touchend', () => {
+        if (isDragging) {
+            const currentAnswer = answers[index];
+            if (currentAnswer !== null && currentAnswer !== undefined && currentAnswer !== 0) {
+                if (autoAdvanceTimeout) {
+                    clearTimeout(autoAdvanceTimeout);
                 }
+                autoAdvanceTimeout = setTimeout(() => {
+                    autoAdvanceToNext();
+                }, 500);
             }
-            isDragging = false;
-        });
-        
-    // Click on notches only - no clicking on track (0 notch is disabled)
+        }
+        isDragging = false;
+    });
+
     notches.forEach(notch => {
         const value = parseInt(notch.dataset.value);
-        // Disable the 0 notch - it's not a valid answer
         if (value === 0) {
             notch.classList.add('disabled');
             notch.style.cursor = 'not-allowed';
@@ -278,28 +234,23 @@ function valueToPosition(value) {
 
 function showQuestionPage(pageIndex) {
     const cards = document.querySelectorAll('.question-card');
-    
+
     if (cards.length === 0) {
         console.error('No question cards found!');
         return;
     }
-    
-    // Clear any pending auto-advance
+
     if (autoAdvanceTimeout) {
         clearTimeout(autoAdvanceTimeout);
         autoAdvanceTimeout = null;
     }
-    
-    // Hide all cards
+
     cards.forEach((card) => {
         card.classList.remove('active');
     });
-    
-    // Show only the card for current page
+
     if (pageIndex >= 0 && pageIndex < cards.length) {
         cards[pageIndex].classList.add('active');
-        
-        // Smooth scroll to top of question
         setTimeout(() => {
             cards[pageIndex].scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
@@ -312,79 +263,61 @@ function showQuestionPage(pageIndex) {
 }
 
 function updateProgress() {
-    // Count only valid answers (not null, undefined, or 0)
     const answeredCount = answers.filter(a => a !== null && a !== undefined && a !== 0).length;
     const percentage = Math.round((answeredCount / TOTAL_QUESTIONS) * 100);
-    
     document.getElementById('progressFill').style.width = `${percentage}%`;
     document.getElementById('progressText').textContent = `${percentage}%`;
-    }
-    
+}
+
 function updateNavigationButtons() {
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
-    
-    // Show previous button if not on first question
+
     prevBtn.style.display = currentPage === 0 ? 'none' : 'block';
-    
-    // Hide next button since we use auto-advance
-    // But keep it for manual navigation if needed
+
     const totalPages = Math.ceil(TOTAL_QUESTIONS / QUESTIONS_PER_PAGE);
     if (currentPage === totalPages - 1) {
         nextBtn.textContent = 'Ver Resultados →';
         nextBtn.style.display = 'block';
     } else {
         nextBtn.textContent = 'Próximo →';
-        // Hide next button - we'll use auto-advance
         nextBtn.style.display = 'none';
     }
 }
 
 function updateNextButtonState() {
     const nextBtn = document.getElementById('nextBtn');
-    
-    // Check if current question is answered (0 is not a valid answer)
     const answer = answers[currentPage];
     const isAnswered = answer !== null && answer !== undefined && answer !== 0;
-    
     nextBtn.disabled = !isAnswered;
 }
 
-// Auto-advance to next question
 function autoAdvanceToNext() {
     const totalPages = Math.ceil(TOTAL_QUESTIONS / QUESTIONS_PER_PAGE);
-    
-    // If not on last question, go to next
     if (currentPage < totalPages - 1) {
         showQuestionPage(currentPage + 1);
     } else {
-        // On last question, check if all are answered and go to results
         if (validateAllQuestionsAnswered()) {
             handleFinishQuiz();
         }
     }
 }
 
-// Handle finishing the quiz
 async function handleFinishQuiz() {
-    // Ensure user has ID before saving
     let currentUser = JSON.parse(localStorage.getItem('hypeCurrentUser') || '{}');
-    
+
     if (!currentUser.id && typeof checkSupabaseAvailable === 'function' && checkSupabaseAvailable()) {
-        // Try to sync user to Supabase
         try {
             const client = window.supabaseClient;
             if (client && currentUser.username && currentUser.phone) {
-                // Check if user exists in Supabase
-                const { data: existingUser, error: findError } = await client
+                const { data: existingUser } = await client
                     .from('users')
                     .select('*')
                     .ilike('username', currentUser.username)
                     .eq('phone', currentUser.phone)
                     .single();
-                
+
                 if (existingUser) {
-                    // Update localStorage with Supabase user
                     currentUser = {
                         id: existingUser.id,
                         username: existingUser.username,
@@ -393,26 +326,23 @@ async function handleFinishQuiz() {
                         createdAt: existingUser.created_at || existingUser.createdAt
                     };
                     localStorage.setItem('hypeCurrentUser', JSON.stringify(currentUser));
-                } else {
-                    // User doesn't exist in Supabase, try to create
-                    if (typeof saveUser === 'function') {
-                        const savedUser = await saveUser({
-                            username: currentUser.username,
-                            phone: currentUser.phone,
-                            phoneFormatted: currentUser.phoneFormatted
-                        });
-                        if (savedUser && savedUser.id) {
-                            currentUser = savedUser;
-                            localStorage.setItem('hypeCurrentUser', JSON.stringify(currentUser));
-                        }
+                } else if (typeof saveUser === 'function') {
+                    const savedUser = await saveUser({
+                        username: currentUser.username,
+                        phone: currentUser.phone,
+                        phoneFormatted: currentUser.phoneFormatted
+                    });
+                    if (savedUser && savedUser.id) {
+                        currentUser = savedUser;
+                        localStorage.setItem('hypeCurrentUser', JSON.stringify(currentUser));
                     }
                 }
             }
         } catch (error) {
-            // Silent fail - continue with localStorage user
+            // Continue with localStorage user
         }
     }
-    
+
     await saveAnswers();
     window.location.href = 'results.html';
 }
@@ -420,20 +350,18 @@ async function handleFinishQuiz() {
 function setupNavigation() {
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
-    
+
     prevBtn.addEventListener('click', () => {
         if (currentPage > 0) {
             showQuestionPage(currentPage - 1);
-    }
+        }
     });
-    
+
     nextBtn.addEventListener('click', async () => {
-        // Only show on last question for manual navigation
         if (currentPage === TOTAL_QUESTIONS - 1) {
             if (validateAllQuestionsAnswered()) {
                 await handleFinishQuiz();
             } else {
-                // Find and show the first unanswered question
                 const firstUnanswered = findFirstUnansweredQuestion();
                 if (firstUnanswered !== -1) {
                     showQuestionPage(firstUnanswered);
@@ -441,7 +369,6 @@ function setupNavigation() {
                 }
             }
         } else {
-            // Manual advance (though auto-advance should handle this)
             showQuestionPage(currentPage + 1);
         }
     });
@@ -456,23 +383,19 @@ function setupCloseButton() {
     });
 }
 
-// Validate that ALL questions are answered (not null, undefined, or 0)
 function validateAllQuestionsAnswered() {
     if (answers.length !== TOTAL_QUESTIONS) {
         return false;
     }
-    
     for (let i = 0; i < TOTAL_QUESTIONS; i++) {
         const answer = answers[i];
         if (answer === null || answer === undefined || answer === 0) {
             return false;
         }
     }
-    
     return true;
 }
 
-// Find the first unanswered question index
 function findFirstUnansweredQuestion() {
     for (let i = 0; i < TOTAL_QUESTIONS; i++) {
         const answer = answers[i];
@@ -481,14 +404,14 @@ function findFirstUnansweredQuestion() {
         }
     }
     return -1;
-    }
-    
+}
+
 async function saveAnswers() {
-    // Save to Supabase if available, otherwise localStorage
     if (typeof saveAnswersToSupabase === 'function') {
         try {
             await saveAnswersToSupabase(answers);
         } catch (error) {
+            console.error('Erro ao salvar no Supabase, usando localStorage:', error);
             localStorage.setItem('hypeAnswers', JSON.stringify(answers));
         }
     } else {
@@ -498,37 +421,34 @@ async function saveAnswers() {
 
 async function loadSavedAnswers() {
     let loadedAnswers = null;
-    
-    // Try to load from Supabase first, then localStorage
+
     if (typeof loadAnswersFromSupabase === 'function') {
         loadedAnswers = await loadAnswersFromSupabase(TOTAL_QUESTIONS);
-}
+    }
 
-    // If Supabase didn't return data, try localStorage
     if (!loadedAnswers) {
         const saved = localStorage.getItem('hypeAnswers');
         if (saved) {
-            const parsed = JSON.parse(saved);
-            if (parsed.length === TOTAL_QUESTIONS) {
-                loadedAnswers = parsed;
+            try {
+                const parsed = JSON.parse(saved);
+                if (parsed.length === TOTAL_QUESTIONS) {
+                    loadedAnswers = parsed;
+                }
+            } catch (error) {
+                console.error('Erro ao parsear respostas do localStorage:', error);
             }
         }
     }
-    
+
     if (loadedAnswers && loadedAnswers.length === TOTAL_QUESTIONS) {
-        answers = loadedAnswers;
-        // Reset any 0 values to null (0 is not a valid answer)
-        answers = answers.map(value => (value === 0 ? null : value));
-        
-        // Update sliders with saved values
+        answers = loadedAnswers.map(value => (value === 0 ? null : value));
+
         answers.forEach((value, index) => {
             if (value !== null && value !== 0) {
                 const track = document.getElementById(`track-${index}`);
                 if (track) {
                     const thumb = document.getElementById(`thumb-${index}`);
                     const fill = document.getElementById(`fill-${index}`);
-                    
-                    // Use the same valueToPosition logic
                     const positions = {
                         '-3': 8.33, '-2': 25, '-1': 41.66,
                         '1': 58.33, '2': 75, '3': 91.66

@@ -1,4 +1,3 @@
-// BIG 5 Personality Traits and their associated questions
 const big5Traits = {
     'Abertura': {
         questions: [1, 3, 7, 9, 10, 13, 18, 23],
@@ -32,8 +31,6 @@ let userAnswers = [];
 
 async function loadResults() {
     let loadedAnswers = null;
-    
-    // Try to load from Supabase first, then localStorage
     if (typeof loadAnswersFromSupabase === 'function') {
         const totalQuestions = questions ? questions.length : 30;
         loadedAnswers = await loadAnswersFromSupabase(totalQuestions);
@@ -52,59 +49,52 @@ async function loadResults() {
         window.location.href = 'quiz.html';
         return;
     }
-    
+
     userAnswers = loadedAnswers;
-    
-    // Stricter validation: ensure all questions are answered
+
     const unanswered = userAnswers.findIndex((answer, index) => {
         return answer === null || answer === undefined || answer === 0;
     });
-    
+
     if (unanswered !== -1) {
         alert('Questionário incompleto. Por favor, responda todas as perguntas antes de ver os resultados.');
         window.location.href = 'quiz.html';
         return;
     }
-    
+
     calculateBig5Scores();
     displayResults();
-    
-    // Save quiz session to Supabase
+
     if (typeof saveQuizSession === 'function') {
-        const currentUser = JSON.parse(localStorage.getItem('hypeCurrentUser') || '{}');
-        if (currentUser.id) {
-            await saveQuizSession(userAnswers, userSkills);
+        try {
+            const currentUser = JSON.parse(localStorage.getItem('hypeCurrentUser') || '{}');
+            if (currentUser.id) {
+                await saveQuizSession(userAnswers, userSkills);
+            }
+        } catch (error) {
+            console.error('Erro ao salvar sessão:', error);
         }
     }
 }
 
 function calculateBig5Scores() {
-    // Calculate BIG 5 trait scores based on answers
     Object.keys(big5Traits).forEach(trait => {
         const traitData = big5Traits[trait];
         let totalScore = 0;
         let count = 0;
-        
+
         traitData.questions.forEach(questionIndex => {
-            // questionIndex is 0-based array index
             if (questionIndex >= 0 && questionIndex < userAnswers.length) {
                 const answer = userAnswers[questionIndex];
                 if (answer !== null && answer !== undefined) {
-                    // Answers range from -3 to 3 (excluding 0)
-                    // For non-reversed traits: positive answers = higher trait, negative = lower
-                    // For reversed traits (like emotional stability): negative = higher stability
                     let score = traitData.reversed ? -answer : answer;
-                    
-                    // Convert from -3 to 3 scale to 0-100 scale
-                    // -3 -> 0, -2 -> 16.67, -1 -> 33.33, 1 -> 66.67, 2 -> 83.33, 3 -> 100
                     const normalizedScore = ((score + 3) / 6) * 100;
                     totalScore += normalizedScore;
                     count++;
                 }
             }
         });
-        
-        // Average the scores
+
         userSkills[trait] = count > 0 ? Math.round(totalScore / count) : 50;
     });
 }

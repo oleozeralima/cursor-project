@@ -41,7 +41,6 @@
     </div>
 
     <script>
-        // Check if user is logged in
         document.addEventListener('DOMContentLoaded', function() {
             const currentUser = localStorage.getItem('hypeCurrentUser');
             if (!currentUser) {
@@ -49,14 +48,12 @@
             }
         });
     </script>
-    <!-- Supabase Client Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="supabase-quiz.js"></script>
     <script src="questions.js"></script>
     <script src="script.js"></script>
     <script>
-        // Initialize Supabase when page loads
         window.addEventListener('load', function() {
             setTimeout(function() {
                 if (typeof initSupabase === 'function') {
