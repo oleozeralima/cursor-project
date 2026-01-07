@@ -112,8 +112,13 @@ function drawMandala() {
     
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     const container = canvas.parentElement;
-    const containerWidth = container.clientWidth - 80;
-    const size = Math.min(600, containerWidth);
+    // Make the mandala larger on mobile while respecting container width
+    const isMobile = window.innerWidth <= 768;
+    const horizontalPadding = isMobile ? 30 : 80;
+    const maxSize = isMobile ? 420 : 600;
+    const minSize = isMobile ? 320 : 360;
+    const containerWidth = container.clientWidth - horizontalPadding;
+    const size = Math.max(minSize, Math.min(maxSize, containerWidth));
     canvas.width = size;
     canvas.height = size;
     
@@ -190,11 +195,14 @@ function drawMandala() {
         ctx.fillText(trait, labelX, labelY);
         
         // Draw score
+        const scoreRadius = radius * 0.55; // place inside the petal
+        const scoreX = centerX + Math.cos(angle) * scoreRadius;
+        const scoreY = centerY + Math.sin(angle) * scoreRadius;
+        ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.font = 'bold 14px Arial';
-        ctx.fillStyle = category.color;
-        const scoreOffset = vertical > 0.2 ? -18 : vertical < -0.2 ? 18 : 18;
-        ctx.fillText(`${score}%`, labelX, labelY + scoreOffset);
+        ctx.font = 'bold 18px Arial';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(`${score}%`, scoreX, scoreY);
     });
     
     // Draw center circle
@@ -502,15 +510,12 @@ function calculateRoleFit(role) {
     // Calculate weighted average difference
     const avgDiff = weightedDiff / totalWeight;
     
-    // More precise scoring with stricter matching
+    // Base score
     let fitScore = 100 - avgDiff;
     
-    // Apply stricter thresholds for better precision
-    if (fitScore >= 85) {
-        fitScore = 85 + (fitScore - 85) * 1.2; // Boost excellent matches
-    } else if (fitScore < 60) {
-        fitScore = fitScore * 0.85; // Reduce poor matches
-    }
+    // Increase contrast so diferenças fiquem mais perceptíveis
+    // Desloca em torno de 50 e amplia a variação
+    fitScore = 50 + (fitScore - 50) * 1.35;
     
     return Math.max(0, Math.min(100, Math.round(fitScore)));
 }
