@@ -113,9 +113,9 @@ function drawMandala() {
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     const container = canvas.parentElement;
     const isMobile = window.innerWidth <= 768;
-    const padding = isMobile ? 16 : 80;
+    const padding = isMobile ? 12 : 80;
     const availableWidth = Math.max(260, container.clientWidth - padding);
-    const size = Math.min(isMobile ? 520 : 600, availableWidth);
+    const size = Math.min(isMobile ? 540 : 600, availableWidth);
     const pixelRatio = window.devicePixelRatio || 1;
     
     // Keep the canvas crisp on high-DPI screens without affecting desktop layout
@@ -134,8 +134,8 @@ function drawMandala() {
     
     const centerX = size / 2;
     const centerY = size / 2;
-    const maxRadius = size / 2 - (isMobile ? 40 : 40);
-    const minPetalRadius = isMobile ? maxRadius * 0.22 : 0;
+    const maxRadius = size / 2 - (isMobile ? 24 : 40);
+    const minPetalRadius = isMobile ? maxRadius * 0.35 : 0;
     
     // Clear canvas
     ctx.clearRect(0, 0, size, size);
@@ -194,8 +194,8 @@ function drawMandala() {
         // Show labels also on mobile, similar to desktop
         ctx.globalAlpha = 1;
         ctx.fillStyle = '#ffffff';
-        const labelRadiusTopic = maxRadius + (isMobile ? 70 : 30);
-        const scoreBaseRadius = maxRadius + (isMobile ? 40 : 30); // keep percentage position relative to label
+        const labelRadiusTopic = maxRadius + (isMobile ? 12 : 30);
+        const scoreBaseRadius = maxRadius + (isMobile ? 28 : 30); // keep percentage position relative to label
         ctx.font = isMobile ? 'bold 12px Arial' : 'bold 14px Arial';
         const labelX = centerX + Math.cos(angle) * labelRadiusTopic;
         const labelY = centerY + Math.sin(angle) * labelRadiusTopic;
@@ -208,13 +208,13 @@ function drawMandala() {
         
         // Draw score
         if (isMobile) {
-            // Place score just outside the label, below the topic for clarity
-            const scoreRadiusOuter = scoreBaseRadius + 16;
+            // Place score stacked below the topic outside the circle for clarity
+            const scoreRadiusOuter = scoreBaseRadius + 14;
             const scoreX = centerX + Math.cos(angle) * scoreRadiusOuter;
             const scoreY = centerY + Math.sin(angle) * scoreRadiusOuter;
             ctx.textAlign = horizontal > 0.2 ? 'right' : horizontal < -0.2 ? 'left' : 'center';
             ctx.textBaseline = vertical < -0.2 ? 'top' : vertical > 0.2 ? 'bottom' : 'middle';
-            ctx.font = 'bold 13px Arial';
+            ctx.font = 'bold 12px Arial';
             ctx.fillStyle = '#ffffff';
             ctx.fillText(`${score}%`, scoreX, scoreY);
         } else {
