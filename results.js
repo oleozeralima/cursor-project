@@ -112,136 +112,152 @@ function drawMandala() {
     
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     const container = canvas.parentElement;
-    // Much more padding to ensure labels are never clipped
-    const containerWidth = container.clientWidth - 160;
-    
-    // Make canvas responsive but with minimum size for readability
-    const isMobile = window.innerWidth <= 768;
-    const baseSize = isMobile ? 450 : 700; // Increased sizes to accommodate labels with plenty of space
-    const size = Math.min(baseSize, containerWidth);
-    
+    const containerWidth = container.clientWidth - 80;
+    const size = Math.min(600, containerWidth);
     canvas.width = size;
     canvas.height = size;
     
     const centerX = size / 2;
     const centerY = size / 2;
-    // Drastically reduce mandala size to leave MUCH more room for labels
-    // Calculate based on longest trait name (Estabilidade Emocional ~20 chars)
-    const maxRadius = size / 2 - 140; // Very large margin for labels (140px)
-    
-    // Calculate font sizes based on canvas size for better readability
-    const fontSize = Math.max(15, size / 28); // Slightly smaller font if needed
-    const scoreFontSize = Math.max(13, size / 32);
-    // Much larger label offset to prevent any text clipping
-    const labelOffset = Math.max(70, size / 6); // Much larger offset (at least 70px)
+    const maxRadius = size / 2 - 80;
     
     // Clear canvas
     ctx.clearRect(0, 0, size, size);
     
-    // Draw background circle
-    ctx.fillStyle = '#252525';
+    // Draw background circle (black)
+    ctx.fillStyle = '#000000';
     ctx.beginPath();
-    ctx.arc(centerX, centerY, maxRadius, 0, Math.PI * 2);
+    ctx.arc(centerX, centerY, maxRadius + 60, 0, Math.PI * 2);
     ctx.fill();
     
     const traits = Object.keys(userSkills);
     const angleStep = (Math.PI * 2) / traits.length;
+    const levels = 5; // Number of concentric levels
     
-    // Draw trait petals
+    // Draw concentric circles (radar grid)
+    for (let i = 1; i <= levels; i++) {
+        const radius = (maxRadius / levels) * i;
+        ctx.strokeStyle = '#333333';
+        ctx.lineWidth = 1;
+        ctx.globalAlpha = 0.3;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+    
+    // Draw radial lines from center
+    ctx.globalAlpha = 0.3;
+    traits.forEach((trait, index) => {
+        const angle = index * angleStep - Math.PI / 2;
+        const x = centerX + Math.cos(angle) * maxRadius;
+        const y = centerY + Math.sin(angle) * maxRadius;
+        
+        ctx.strokeStyle = '#333333';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+    });
+    
+    // Draw data polygon (filled area)
+    ctx.globalAlpha = 0.3;
+    ctx.beginPath();
     traits.forEach((trait, index) => {
         const angle = index * angleStep - Math.PI / 2;
         const score = userSkills[trait];
         const radius = (score / 100) * maxRadius;
+        const x = centerX + Math.cos(angle) * radius;
+        const y = centerY + Math.sin(angle) * radius;
+        
+        if (index === 0) {
+            ctx.moveTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
+        }
+    });
+    ctx.closePath();
+    
+    // Create gradient fill
+    const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxRadius);
+    gradient.addColorStop(0, 'rgba(74, 144, 226, 0.5)');
+    gradient.addColorStop(1, 'rgba(80, 200, 120, 0.5)');
+    ctx.fillStyle = gradient;
+    ctx.fill();
+    
+    // Draw data polygon outline
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = '#4a90e2';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    
+    // Draw data points and labels
+    traits.forEach((trait, index) => {
+        const angle = index * angleStep - Math.PI / 2;
+        const score = userSkills[trait];
+        const radius = (score / 100) * maxRadius;
+        const x = centerX + Math.cos(angle) * radius;
+        const y = centerY + Math.sin(angle) * radius;
         
         const category = big5Traits[trait];
         const color = category.color;
         
-        // Draw petal
+        // Draw data point
         ctx.fillStyle = color;
-        ctx.globalAlpha = 0.7;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        
-        const petalWidth = angleStep * 0.8;
-        const x1 = centerX + Math.cos(angle - petalWidth / 2) * radius;
-        const y1 = centerY + Math.sin(angle - petalWidth / 2) * radius;
-        const x2 = centerX + Math.cos(angle + petalWidth / 2) * radius;
-        const y2 = centerY + Math.sin(angle + petalWidth / 2) * radius;
-        
-        ctx.lineTo(x1, y1);
-        ctx.arc(centerX, centerY, radius, angle - petalWidth / 2, angle + petalWidth / 2);
-        ctx.lineTo(centerX, centerY);
+        ctx.arc(x, y, 6, 0, Math.PI * 2);
         ctx.fill();
+        ctx.stroke();
         
-        // Draw trait name with better visibility
+        // Draw trait name and score
         ctx.globalAlpha = 1;
         ctx.fillStyle = '#ffffff';
-        ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+        ctx.font = 'bold 14px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         
-        // Calculate label position with safe margins to prevent clipping
-        // Ensure labels stay well within canvas boundaries
-        const safeMargin = Math.max(40, fontSize * 2); // Safe margin at least 2x font size
-        const maxLabelRadius = Math.min(size / 2 - safeMargin, maxRadius + labelOffset);
-        const labelRadius = Math.min(maxRadius + labelOffset, maxLabelRadius);
-        
+        const labelRadius = maxRadius + 25;
         const labelX = centerX + Math.cos(angle) * labelRadius;
         const labelY = centerY + Math.sin(angle) * labelRadius;
         
-        // Ensure text is within canvas bounds with padding
-        const textMetrics = ctx.measureText(trait);
-        const textWidth = textMetrics.width;
-        const textPadding = 10;
+        // Adjust text alignment based on position
+        if (Math.abs(Math.cos(angle)) > 0.5) {
+            ctx.textAlign = Math.cos(angle) > 0 ? 'left' : 'right';
+        }
+        if (Math.abs(Math.sin(angle)) > 0.5) {
+            ctx.textBaseline = Math.sin(angle) > 0 ? 'top' : 'bottom';
+        }
         
-        // Clamp positions to ensure text stays within canvas
-        const clampedX = Math.max(textWidth / 2 + textPadding, 
-                          Math.min(size - textWidth / 2 - textPadding, labelX));
-        const clampedY = Math.max(fontSize + textPadding, 
-                          Math.min(size - fontSize - textPadding, labelY));
+        ctx.fillText(trait, labelX, labelY);
         
-        // Add text shadow for better readability
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-        ctx.shadowBlur = 4;
-        ctx.shadowOffsetX = 2;
-        ctx.shadowOffsetY = 2;
-        
-        ctx.fillText(trait, clampedX, clampedY);
-        
-        // Draw score with better visibility
-        ctx.font = `bold ${scoreFontSize}px Arial, sans-serif`;
+        // Draw score
+        ctx.font = 'bold 12px Arial';
         ctx.fillStyle = category.color;
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
-        ctx.shadowBlur = 3;
-        ctx.fillText(`${score}%`, clampedX, clampedY + fontSize + 8);
-        
-        // Reset shadow
-        ctx.shadowColor = 'transparent';
-        ctx.shadowBlur = 0;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 0;
+        ctx.fillText(`${score}%`, labelX, labelY + 15);
     });
     
-    // Draw center circle
-    ctx.fillStyle = '#1a1a1a';
+    // Draw center dot
+    ctx.fillStyle = '#ffffff';
     ctx.beginPath();
-    ctx.arc(centerX, centerY, Math.max(25, size / 20), 0, Math.PI * 2);
+    ctx.arc(centerX, centerY, 4, 0, Math.PI * 2);
     ctx.fill();
     
     // Create legend
     const legend = document.getElementById('skillsLegend');
     if (legend) {
-    legend.innerHTML = '';
+        legend.innerHTML = '';
         traits.forEach(trait => {
-        const item = document.createElement('div');
-        item.className = 'legend-item';
+            const item = document.createElement('div');
+            item.className = 'legend-item';
             const category = big5Traits[trait];
-        item.innerHTML = `
-            <div class="legend-color" style="background: ${category.color}"></div>
+            item.innerHTML = `
+                <div class="legend-color" style="background: ${category.color}"></div>
                 <span>${trait}</span>
-        `;
-        legend.appendChild(item);
-    });
+            `;
+            legend.appendChild(item);
+        });
     }
 }
 
@@ -388,11 +404,11 @@ const sampleTeam = [
     }
 ];
 
-// Much stricter compatibility calculation with exponential penalties for differences
+// Stricter compatibility calculation using all 5 BIG 5 traits with weighted scoring
 function calculateCompatibility(teamMember) {
     const traits = ['Abertura', 'Conscienciosidade', 'Extroversão', 'Amabilidade', 'Estabilidade Emocional'];
-    let totalPenalty = 0;
-    let maxPossiblePenalty = 0;
+    let weightedDiff = 0;
+    let totalWeight = 0;
     
     traits.forEach(trait => {
         if (userSkills[trait] !== undefined && teamMember.skills[trait] !== undefined) {
@@ -400,35 +416,29 @@ function calculateCompatibility(teamMember) {
             const teamValue = teamMember.skills[trait];
             const diff = Math.abs(userValue - teamValue);
             
-            // Use squared difference for exponential penalty - larger gaps hurt much more
-            // This creates much more dramatic differences between compatible and incompatible matches
-            const squaredPenalty = (diff / 100) ** 2; // Square the normalized difference (0-1 scale squared)
-            totalPenalty += squaredPenalty;
-            maxPossiblePenalty += 1; // Max penalty is 1 (when diff = 100)
+            // Weighted calculation: larger differences are penalized more (exponential decay)
+            // This makes the scoring more precise and stricter
+            const weight = 1;
+            const normalizedDiff = (diff / 100) * 100; // Normalize to 0-100 scale
+            weightedDiff += normalizedDiff * weight;
+            totalWeight += weight;
         }
     });
     
-    if (maxPossiblePenalty === 0) return 50;
+    if (totalWeight === 0) return 50;
     
-    // Calculate average penalty (0-1 scale)
-    const avgPenalty = totalPenalty / maxPossiblePenalty;
+    // Calculate average weighted difference
+    const avgDiff = weightedDiff / totalWeight;
     
-    // Convert penalty to score (0-100)
-    let strictScore = (1 - avgPenalty) * 100;
+    // More precise scoring: use squared difference for stricter matching
+    // This penalizes larger mismatches more heavily
+    let strictScore = 100 - avgDiff;
     
-    // Apply exponential amplification to create more dramatic differences
-    // High matches get boosted more, low matches get penalized more
-    if (strictScore >= 75) {
-        // Boost excellent matches significantly
-        const excess = (strictScore - 75) / 25; // Normalize excess (0-1)
-        strictScore = 75 + (excess * excess * 25); // Quadratic boost
-    } else if (strictScore >= 50) {
-        // Moderate matches stay closer to middle
-        strictScore = 50 + ((strictScore - 50) * 0.6);
-    } else {
-        // Penalize poor matches heavily
-        const deficit = (50 - strictScore) / 50; // Normalize deficit (0-1)
-        strictScore = strictScore * (1 - deficit * 0.5); // Quadratic penalty
+    // Apply stricter thresholds: boost high matches, reduce low matches
+    if (strictScore >= 80) {
+        strictScore = 80 + (strictScore - 80) * 1.25; // Boost high scores
+    } else if (strictScore < 50) {
+        strictScore = strictScore * 0.9; // Reduce low scores
     }
     
     return Math.max(0, Math.min(100, Math.round(strictScore)));
@@ -446,16 +456,16 @@ function displayCompatibility() {
         card.className = 'compatibility-card';
         
         let scoreClass = 'medium';
-        if (compatibility >= 70) scoreClass = 'high';
-        else if (compatibility < 45) scoreClass = 'low';
+        if (compatibility >= 75) scoreClass = 'high';
+        else if (compatibility < 50) scoreClass = 'low';
         
         let description = '';
-        if (compatibility >= 70) {
-            description = 'Alta compatibilidade. Perfis muito alinhados para trabalho em equipe produtivo.';
-        } else if (compatibility >= 45) {
-            description = 'Compatibilidade moderada. Requer adaptação e comunicação constante.';
+        if (compatibility >= 75) {
+            description = 'Alta compatibilidade. Trabalho em equipe será muito produtivo.';
+        } else if (compatibility >= 50) {
+            description = 'Compatibilidade moderada. Boa colaboração com comunicação adequada.';
         } else {
-            description = 'Compatibilidade baixa. Perfis muito diferentes, desafio significativo para colaboração.';
+            description = 'Compatibilidade baixa. Requer mais esforço para alinhamento.';
         }
         
         card.innerHTML = `
@@ -468,52 +478,51 @@ function displayCompatibility() {
     });
 }
 
-// Much stricter role fit calculation with heavily weighted critical traits and exponential penalties
+// Stricter role fit calculation with weighted importance of traits
 function calculateRoleFit(role) {
     const roleProfile = companyRoles[role];
     
-    // Define trait weights for each role - much higher weights for critical traits
-    // This makes the calculation much more discriminatory
+    // Define trait weights for each role (higher weight = more important for that role)
     const traitWeights = {
         'Gestor/Coordenador': {
-            'Extroversão': 2.5,
-            'Conscienciosidade': 2.5,
-            'Amabilidade': 1.8,
-            'Abertura': 1.2,
-            'Estabilidade Emocional': 2.0
+            'Extroversão': 1.5,
+            'Conscienciosidade': 1.5,
+            'Amabilidade': 1.2,
+            'Abertura': 1.0,
+            'Estabilidade Emocional': 1.3
         },
         'Analista/Especialista': {
-            'Conscienciosidade': 3.0,
-            'Abertura': 2.5,
-            'Estabilidade Emocional': 2.5,
-            'Amabilidade': 1.2,
-            'Extroversão': 0.6
+            'Conscienciosidade': 1.8,
+            'Abertura': 1.5,
+            'Estabilidade Emocional': 1.5,
+            'Amabilidade': 1.0,
+            'Extroversão': 0.8
         },
         'Inovador/Criativo': {
-            'Abertura': 3.0,
-            'Extroversão': 2.0,
-            'Amabilidade': 1.8,
-            'Estabilidade Emocional': 1.8,
-            'Conscienciosidade': 1.2
+            'Abertura': 1.8,
+            'Extroversão': 1.3,
+            'Amabilidade': 1.2,
+            'Estabilidade Emocional': 1.2,
+            'Conscienciosidade': 1.0
         },
         'Colaborador/Time': {
-            'Amabilidade': 3.0,
-            'Extroversão': 2.5,
-            'Estabilidade Emocional': 2.5,
-            'Conscienciosidade': 1.8,
-            'Abertura': 1.2
+            'Amabilidade': 1.8,
+            'Extroversão': 1.5,
+            'Estabilidade Emocional': 1.5,
+            'Conscienciosidade': 1.2,
+            'Abertura': 1.0
         },
         'Executor/Operacional': {
-            'Conscienciosidade': 3.0,
-            'Estabilidade Emocional': 2.8,
-            'Amabilidade': 1.8,
-            'Abertura': 1.2,
-            'Extroversão': 1.2
+            'Conscienciosidade': 1.8,
+            'Estabilidade Emocional': 1.6,
+            'Amabilidade': 1.2,
+            'Abertura': 1.0,
+            'Extroversão': 1.0
         }
     };
     
     const weights = traitWeights[role] || {};
-    let weightedSquaredPenalty = 0;
+    let weightedDiff = 0;
     let totalWeight = 0;
     
     Object.keys(roleProfile.idealSkills).forEach(trait => {
@@ -522,37 +531,26 @@ function calculateRoleFit(role) {
             const idealValue = roleProfile.idealSkills[trait];
             const diff = Math.abs(userValue - idealValue);
             
-            // Use squared difference with heavy weighting - critical traits matter MUCH more
-            // This creates dramatic differences between good and poor fits
-            const normalizedDiff = diff / 100; // 0-1 scale
-            const squaredPenalty = normalizedDiff * normalizedDiff; // Square for exponential penalty
+            // Use weighted difference - more important traits have more impact
             const weight = weights[trait] || 1.0;
-            
-            weightedSquaredPenalty += squaredPenalty * weight * weight; // Square the weight too
-            totalWeight += weight * weight;
+            weightedDiff += diff * weight;
+            totalWeight += weight;
         }
     });
     
     if (totalWeight === 0) return 50;
     
-    // Calculate weighted average squared penalty
-    const avgPenalty = weightedSquaredPenalty / totalWeight;
+    // Calculate weighted average difference
+    const avgDiff = weightedDiff / totalWeight;
     
-    // Convert penalty to score
-    let fitScore = (1 - avgPenalty) * 100;
+    // More precise scoring with stricter matching
+    let fitScore = 100 - avgDiff;
     
-    // Apply much stricter amplification - create huge gaps between fits
-    if (fitScore >= 80) {
-        // Dramatically boost excellent fits
-        const excess = (fitScore - 80) / 20; // Normalize (0-1)
-        fitScore = 80 + (excess * excess * excess * 20); // Cubic boost for top scores
-    } else if (fitScore >= 60) {
-        // Moderate matches stay closer to middle
-        fitScore = 60 + ((fitScore - 60) * 0.5);
-    } else {
-        // Severely penalize poor fits
-        const deficit = (60 - fitScore) / 60; // Normalize deficit (0-1)
-        fitScore = fitScore * (1 - deficit * deficit * 0.6); // Cubic penalty for poor fits
+    // Apply stricter thresholds for better precision
+    if (fitScore >= 85) {
+        fitScore = 85 + (fitScore - 85) * 1.2; // Boost excellent matches
+    } else if (fitScore < 60) {
+        fitScore = fitScore * 0.85; // Reduce poor matches
     }
     
     return Math.max(0, Math.min(100, Math.round(fitScore)));
@@ -990,16 +988,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     document.getElementById('closeBtn')?.addEventListener('click', () => {
         window.location.href = 'index.html';
-    });
-    
-    // Redraw mandala on window resize for responsive behavior
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-            if (Object.keys(userSkills).length > 0) {
-                drawMandala();
-            }
-        }, 250);
     });
 });

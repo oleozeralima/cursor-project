@@ -501,7 +501,6 @@ section {
     background: var(--bg-card);
     padding: 30px;
     border-radius: 15px;
-    overflow: visible;
 }
 
 section h2 {
@@ -514,21 +513,15 @@ section h2 {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 40px 20px;
+    padding: 40px;
     background: var(--bg-primary);
     border-radius: 10px;
     margin-bottom: 20px;
-    width: 100%;
-    min-height: 450px;
-    overflow: visible;
-    box-sizing: border-box;
 }
 
 #mandalaCanvas {
     max-width: 100%;
     height: auto;
-    display: block;
-    overflow: visible;
 }
 
 .skills-legend {
@@ -860,21 +853,6 @@ section h2 {
     .skills-grid,
     .compatibility-grid {
         grid-template-columns: 1fr;
-    }
-
-    .mandala-container {
-        padding: 50px 20px;
-        min-height: 450px;
-        overflow: visible;
-    }
-
-    .skills-legend {
-        font-size: 14px;
-    }
-
-    .legend-item {
-        padding: 6px 12px;
-        font-size: 14px;
     }
 
     .welcome-title {
