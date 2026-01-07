@@ -196,7 +196,7 @@ function drawMandala() {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.font = 'bold 18px Arial';
-        ctx.fillStyle = category.color;
+        ctx.fillStyle = '#ffffff';
         ctx.fillText(`${score}%`, scoreX, scoreY);
     });
     
