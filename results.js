@@ -112,11 +112,12 @@ function drawMandala() {
     
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     const container = canvas.parentElement;
-    const containerWidth = container.clientWidth - 80;
+    // Increase padding to ensure labels are not clipped
+    const containerWidth = container.clientWidth - 120;
     
     // Make canvas responsive but with minimum size for readability
     const isMobile = window.innerWidth <= 768;
-    const baseSize = isMobile ? 350 : 600;
+    const baseSize = isMobile ? 400 : 650; // Increased sizes to accommodate labels
     const size = Math.min(baseSize, containerWidth);
     
     canvas.width = size;
@@ -124,12 +125,14 @@ function drawMandala() {
     
     const centerX = size / 2;
     const centerY = size / 2;
-    const maxRadius = size / 2 - 50; // Increased margin for labels
+    // Reduce mandala size significantly to leave more room for labels
+    const maxRadius = size / 2 - 80; // Much more margin for labels
     
     // Calculate font sizes based on canvas size for better readability
     const fontSize = Math.max(16, size / 25); // Responsive font size
     const scoreFontSize = Math.max(14, size / 30);
-    const labelOffset = Math.max(35, size / 12); // Responsive label offset
+    // Increase label offset significantly to prevent text clipping
+    const labelOffset = Math.max(50, size / 8); // Much larger offset for labels
     
     // Clear canvas
     ctx.clearRect(0, 0, size, size);

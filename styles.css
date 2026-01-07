@@ -519,12 +519,14 @@ section h2 {
     margin-bottom: 20px;
     width: 100%;
     min-height: 400px;
+    overflow: visible;
 }
 
 #mandalaCanvas {
     max-width: 100%;
     height: auto;
     display: block;
+    overflow: visible;
 }
 
 .skills-legend {
@@ -859,8 +861,9 @@ section h2 {
     }
 
     .mandala-container {
-        padding: 15px;
-        min-height: 350px;
+        padding: 20px;
+        min-height: 400px;
+        overflow: visible;
     }
 
     .skills-legend {
