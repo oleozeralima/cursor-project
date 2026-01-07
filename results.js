@@ -209,12 +209,13 @@ function drawMandala() {
         }
         
         // Draw score
-        const scoreRadius = radius * 0.55; // place inside the petal
+        // Keep scores fully visible on mobile by pushing them outward a bit
+        const scoreRadius = Math.max(radius * 0.62, isMobile ? maxRadius * 0.24 : radius * 0.55);
         const scoreX = centerX + Math.cos(angle) * scoreRadius;
         const scoreY = centerY + Math.sin(angle) * scoreRadius;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.font = isMobile ? 'bold 18px Arial' : 'bold 18px Arial';
+        ctx.font = isMobile ? 'bold 16px Arial' : 'bold 18px Arial';
         const scoreColor = isMobile ? '#ffffff' : category.color;
         ctx.fillStyle = scoreColor;
         ctx.fillText(`${score}%`, scoreX, scoreY);
