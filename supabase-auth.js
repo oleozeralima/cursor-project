@@ -58,12 +58,12 @@ async function saveUser(user) {
                 .single();
 
             if (error) {
-                // Se houve conflito de unicidade (ex.: telefone já cadastrado), busca o usuário existente por telefone
+                // Se usuário já existe, busca usuário existente
                 if (error.code === '23505') {
                     const { data: existingUser } = await client
                         .from('users')
                         .select('*')
-                        .eq('phone', user.phone)
+                        .eq('username', user.username)
                         .single();
 
                     if (existingUser) {
@@ -256,12 +256,12 @@ async function validateUsername(username, isLogin = false) {
         return { valid: false, error: 'Nome de usuário pode conter apenas letras, números, _ e -' };
     }
     
-    // Permitir usernames duplicados ao registrar; apenas valide existência no login
-    if (isLogin) {
         const exists = await usernameExists(username.trim());
-        if (!exists) {
-            return { valid: false, error: 'Usuário não encontrado' };
+    if (!isLogin && exists) {
+        return { valid: false, error: 'Este nome de usuário já está em uso' };
         }
+    if (isLogin && !exists) {
+        return { valid: false, error: 'Usuário não encontrado' };
     }
     
     return { valid: true };
@@ -501,7 +501,7 @@ function initAuthForm() {
                     const validation = await validateUsername(usernameInput.value.trim(), false);
                     if (validation.valid) {
                         hideError('usernameError');
-                        showSuccess('usernameSuccess', '✓ Nome de usuário válido');
+                        showSuccess('usernameSuccess', '✓ Nome de usuário disponível');
                     } else {
                         hideSuccess('usernameSuccess');
                         showError('usernameError', validation.error);
@@ -621,7 +621,7 @@ function initializeAuth() {
                         const validation = await validateUsername(usernameInput.value.trim(), false);
                         if (validation.valid) {
                             hideError('usernameError');
-                            showSuccess('usernameSuccess', '✓ Nome de usuário válido');
+                            showSuccess('usernameSuccess', '✓ Nome de usuário disponível');
                         } else {
                             hideSuccess('usernameSuccess');
                             showError('usernameError', validation.error);

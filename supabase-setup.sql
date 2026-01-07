@@ -9,17 +9,15 @@
 -- PASSO 1: CRIAR TABELAS PRIMEIRO
 -- ========================================
 
+-- Tabela de usuários
 CREATE TABLE IF NOT EXISTS public.users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    username TEXT NOT NULL,
+    username TEXT UNIQUE NOT NULL,
     phone TEXT UNIQUE NOT NULL,
     phone_formatted TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-
--- Garantir que o username NÃO é mais único (idempotente)
-ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_username_key;
 
 -- Tabela de respostas do quiz
 CREATE TABLE IF NOT EXISTS public.quiz_responses (
