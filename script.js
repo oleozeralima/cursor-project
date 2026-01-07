@@ -235,6 +235,11 @@ function valueToPosition(value) {
         }
         updateNextButtonState();
         saveAnswers();
+        
+        // Auto-advance to next question when answered
+        if (value !== null && value !== 0) {
+            autoAdvanceToNext(index);
+        }
         }
         
     // Mouse events - only allow dragging the thumb, not clicking the track
@@ -372,6 +377,11 @@ function setAnswerValue(index, value) {
     
     updateNextButtonState();
     saveAnswers();
+    
+    // Auto-advance to next question when answered
+    if (value !== null && value !== 0) {
+        autoAdvanceToNext(index);
+    }
 }
 
 function autoAdvanceToNext(currentIndex) {
@@ -439,9 +449,8 @@ function updateNavigationButtons() {
         nextBtn.textContent = 'Ver Resultados →';
         nextBtn.style.display = 'block';
     } else {
-        // Show manual navigation button for next question
-        nextBtn.textContent = 'Próximo →';
-        nextBtn.style.display = 'block';
+        // Hide "Próximo" button until last question (auto-advance handles navigation)
+        nextBtn.style.display = 'none';
     }
 }
 

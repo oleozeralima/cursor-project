@@ -112,14 +112,29 @@ function drawMandala() {
     
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     const container = canvas.parentElement;
-    const containerWidth = container.clientWidth - 80;
-    const size = Math.min(600, containerWidth);
-    canvas.width = size;
-    canvas.height = size;
+    const isMobile = window.innerWidth <= 768;
+    const padding = isMobile ? 20 : 80;
+    const availableWidth = Math.max(220, container.clientWidth - padding);
+    const size = Math.min(isMobile ? 360 : 600, availableWidth);
+    const pixelRatio = window.devicePixelRatio || 1;
+    
+    // Keep the canvas crisp on high-DPI screens without affecting desktop layout
+    canvas.style.width = `${size}px`;
+    canvas.style.height = `${size}px`;
+    canvas.width = size * (isMobile ? pixelRatio : 1);
+    canvas.height = size * (isMobile ? pixelRatio : 1);
+    
+    // Reset any previous scale before applying a new one
+    if (ctx.resetTransform) {
+        ctx.resetTransform();
+    }
+    if (isMobile) {
+        ctx.scale(pixelRatio, pixelRatio);
+    }
     
     const centerX = size / 2;
     const centerY = size / 2;
-    const maxRadius = size / 2 - 40;
+    const maxRadius = size / 2 - (isMobile ? 24 : 40);
     
     // Clear canvas
     ctx.clearRect(0, 0, size, size);
@@ -174,20 +189,23 @@ function drawMandala() {
         ctx.stroke();
         ctx.restore();
         
-        // Draw trait name
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 14px Arial';
-        const labelRadius = maxRadius + 30;
-        const labelX = centerX + Math.cos(angle) * labelRadius;
-        const labelY = centerY + Math.sin(angle) * labelRadius;
-        const horizontal = Math.cos(angle);
-        const vertical = Math.sin(angle);
-        
-        // Keep labels inside the canvas on all screen sizes
-        ctx.textAlign = horizontal > 0.2 ? 'right' : horizontal < -0.2 ? 'left' : 'center';
-        ctx.textBaseline = vertical < -0.2 ? 'top' : vertical > 0.2 ? 'bottom' : 'middle';
-        ctx.fillText(trait, labelX, labelY);
+        // Draw trait name (smaller and closer on mobile to avoid overlap)
+        const shouldDrawLabel = !isMobile || size >= 320;
+        if (shouldDrawLabel) {
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = '#ffffff';
+            ctx.font = isMobile ? 'bold 12px Arial' : 'bold 14px Arial';
+            const labelRadius = maxRadius + (isMobile ? 12 : 30);
+            const labelX = centerX + Math.cos(angle) * labelRadius;
+            const labelY = centerY + Math.sin(angle) * labelRadius;
+            const horizontal = Math.cos(angle);
+            const vertical = Math.sin(angle);
+            
+            // Keep labels readable without colliding on mobile
+            ctx.textAlign = horizontal > 0.2 ? 'right' : horizontal < -0.2 ? 'left' : 'center';
+            ctx.textBaseline = vertical < -0.2 ? 'top' : vertical > 0.2 ? 'bottom' : 'middle';
+            ctx.fillText(trait, labelX, labelY);
+        }
         
         // Draw score
         const scoreRadius = radius * 0.55; // place inside the petal
@@ -195,8 +213,8 @@ function drawMandala() {
         const scoreY = centerY + Math.sin(angle) * scoreRadius;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.font = 'bold 18px Arial';
-        ctx.fillStyle = '#ffffff';
+        ctx.font = isMobile ? 'bold 14px Arial' : 'bold 18px Arial';
+        ctx.fillStyle = category.color;
         ctx.fillText(`${score}%`, scoreX, scoreY);
     });
     
