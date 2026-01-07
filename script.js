@@ -104,9 +104,6 @@ function setupSlider(index) {
     const notches = track.querySelectorAll('.slider-notch');
 
     let isDragging = false;
-    let autoAdvanceTimeout = null;
-    // Store the initial value when user starts interacting (to know if they're changing an existing answer)
-    let initialValue = (answers[index] !== null && answers[index] !== undefined && answers[index] !== 0) ? answers[index] : null;
     
     // Initialize slider at center (0) but don't set as answered
     // Thumb starts visible at center position for reference
@@ -210,13 +207,7 @@ function valueToPosition(value) {
     }
 
     // Set slider value (0 is not allowed)
-    function setValue(value, shouldAutoAdvance = true) {
-        // Clear any pending auto-advance timeout
-        if (autoAdvanceTimeout) {
-            clearTimeout(autoAdvanceTimeout);
-            autoAdvanceTimeout = null;
-        }
-        
+    function setValue(value) {
         // Reject 0 as a valid answer
         if (value === 0) {
             answers[index] = null;
@@ -245,62 +236,34 @@ function valueToPosition(value) {
         updateNextButtonState();
         saveAnswers();
         
-        // Only auto-advance if:
-        // 1. Not dragging
-        // 2. shouldAutoAdvance is true
-        // 3. This is a NEW answer (question wasn't answered before this interaction started)
-        // 4. Value is valid (not null or 0)
-        const isNewAnswer = initialValue === null;
-        if (value !== null && value !== 0 && shouldAutoAdvance && !isDragging && isNewAnswer) {
-            autoAdvanceTimeout = setTimeout(() => {
-                autoAdvanceToNext(index);
-            }, 500);
+        // Auto-advance to next question when answered
+        if (value !== null && value !== 0) {
+            autoAdvanceToNext(index);
         }
         }
         
     // Mouse events - only allow dragging the thumb, not clicking the track
     thumb.addEventListener('mousedown', (e) => {
-        e.stopPropagation();
-        isDragging = true;
-        // Clear any pending auto-advance when starting to drag
-        if (autoAdvanceTimeout) {
-            clearTimeout(autoAdvanceTimeout);
-            autoAdvanceTimeout = null;
-        }
-    });
+                e.stopPropagation();
+            isDragging = true;
+        });
         
-    document.addEventListener('mousemove', (e) => {
-        if (isDragging) {
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
             const value = positionToValue(e.clientX);
-            // Don't auto-advance during dragging
-            setValue(value, false);
-        }
-    });
-        
-    document.addEventListener('mouseup', () => {
-        if (isDragging) {
-            isDragging = false;
-            // After releasing, check if we should auto-advance (only for first-time answers)
-            const currentValue = answers[index];
-            const isNewAnswer = initialValue === null;
-            if (currentValue !== null && currentValue !== 0 && isNewAnswer) {
-                autoAdvanceTimeout = setTimeout(() => {
-                    autoAdvanceToNext(index);
-                }, 500);
+            setValue(value);
             }
-        }
-    });
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
 
     // Touch events - only allow dragging the thumb
     thumb.addEventListener('touchstart', (e) => {
         e.preventDefault();
         e.stopPropagation();
         isDragging = true;
-        // Clear any pending auto-advance when starting to drag
-        if (autoAdvanceTimeout) {
-            clearTimeout(autoAdvanceTimeout);
-            autoAdvanceTimeout = null;
-        }
     });
 
     document.addEventListener('touchmove', (e) => {
@@ -308,24 +271,13 @@ function valueToPosition(value) {
             e.preventDefault();
             const touch = e.touches[0];
             const value = positionToValue(touch.clientX);
-            // Don't auto-advance during dragging
-            setValue(value, false);
+            setValue(value);
         }
     });
         
-    document.addEventListener('touchend', () => {
-        if (isDragging) {
+        document.addEventListener('touchend', () => {
             isDragging = false;
-            // After releasing, check if we should auto-advance (only for first-time answers)
-            const currentValue = answers[index];
-            const isNewAnswer = initialValue === null;
-            if (currentValue !== null && currentValue !== 0 && isNewAnswer) {
-                autoAdvanceTimeout = setTimeout(() => {
-                    autoAdvanceToNext(index);
-                }, 500);
-            }
-        }
-    });
+        });
         
     // Click on notches only - no clicking on track (0 notch is disabled)
     notches.forEach(notch => {
@@ -338,8 +290,7 @@ function valueToPosition(value) {
         } else {
             notch.addEventListener('click', (e) => {
                 e.stopPropagation();
-                // When clicking a notch, allow auto-advance only if it's a first-time answer
-                setValue(value, true);
+                setValue(value);
             });
         }
     });
@@ -427,8 +378,10 @@ function setAnswerValue(index, value) {
     updateNextButtonState();
     saveAnswers();
     
-    // Don't auto-advance when loading saved answers or when user goes back to change answer
-    // Auto-advance is handled in setupSlider for new answers only
+    // Auto-advance to next question when answered
+    if (value !== null && value !== 0) {
+        autoAdvanceToNext(index);
+    }
 }
 
 function autoAdvanceToNext(currentIndex) {
